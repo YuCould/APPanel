@@ -113,6 +113,27 @@ def register(app) -> None:
             return jsonify({"status": "error", "message": "no pid or pkg provided"}), 400
         return jsonify({"status": "ok", "results": results})
 
+    @app.route("/api/version")
+    def api_version():
+        """获取本地 Git 版本和远程最新版本"""
+        import subprocess as _sp
+        local_hash = _sp.run(["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True, timeout=5, cwd=_BASE).stdout.strip()
+        local_time = _sp.run(["git", "log", "-1", "--format=%ci"],
+            capture_output=True, text=True, timeout=5, cwd=_BASE).stdout.strip()
+        remote_hash = ""
+        try:
+            r = _sp.run(["git", "ls-remote", "origin", "HEAD"],
+                capture_output=True, text=True, timeout=10, cwd=_BASE)
+            if r.returncode == 0 and r.stdout.strip():
+                remote_hash = r.stdout.strip().split()[0][:7]
+        except Exception:
+            pass
+        return jsonify({
+            "local": {"hash": local_hash, "time": local_time},
+            "remote": {"hash": remote_hash},
+        })
+
     @app.route("/mpegts.js")
     def mpegts_js():
         return "", 204

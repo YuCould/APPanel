@@ -341,8 +341,8 @@ function toggleCfg(){
   }).catch(function(e){document.getElementById("cfgMsg").textContent="无法加载，请确认服务器已重启 (需支持 /api/config 接口)"})
 }
 function cfgRenderSide(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
-  var labels={chips:"\u82AF\u7247",packages:"\u5E94\u7528",implementers:"\u5382\u5546ID",vendor_keywords:"\u5173\u952E\u8BCD",autostart:"\u81EA\u542F\u52A8",process:"\u8FDB\u7A0B"};
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
+  var labels={chips:"\u82AF\u7247",packages:"\u5E94\u7528",implementers:"\u5382\u5546ID",vendor_keywords:"\u5173\u952E\u8BCD",autostart:"\u81EA\u542F\u52A8",process:"\u8FDB\u7A0B",version:"\u7248\u672C"};
   var h='<div style="font-size:10px;color:var(--p3);padding:2px 4px;margin-bottom:2px">\u5206\u7C7B</div>';
   for(var i=0;i<groups.length;i++){
     var k=groups[i];
@@ -354,16 +354,19 @@ function cfgRenderSide(){
   document.getElementById("cfgSide").innerHTML=h
 }
 function cfgSelectTab(key){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
   window._cfgTab=groups.indexOf(key);
   cfgRenderSide();
   cfgRenderTable()
 }
 function cfgRenderTable(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
   var key=groups[window._cfgTab];
   if(key==="process"){
     renderProcess();return
+  }
+  if(key==="version"){
+    renderVersion();return
   }
   var data=window._cfgData[key]||{};
   var keys=Object.keys(data);
@@ -442,6 +445,44 @@ function killProc(pid,pkg){
       if(d.status==="ok")setTimeout(renderProcess,2000)
     }).catch(function(e){document.getElementById("cfgMsg").textContent="请求失败: "+e})
 }
+function renderVersion(){
+  var h='<div style=display:flex;flex-direction:column;gap:12px;padding:10px;font-size:13px>';
+  h+='<div style="padding:12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px">';
+  h+='<div style=font-size:11px;color:var(--p3);margin-bottom:6px>📦 本地版本</div>';
+  h+='<div id=vLocal style=font-size:14px;font-weight:600;color:var(--fg)>加载中...</div>';
+  h+='</div>';
+  h+='<div style="padding:12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px">';
+  h+='<div style=font-size:11px;color:var(--p3);margin-bottom:6px>🌐 远程最新</div>';
+  h+='<div id=vRemote style=font-size:14px;font-weight:600;color:var(--fg)>加载中...</div>';
+  h+='</div>';
+  h+='<button onclick=\'checkVersion()\' style="background:var(--th-on);border:none;color:var(--bg);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;margin-top:4px">🔄 刷新</button>';
+  h+='</div>';
+  document.getElementById("cfgBody").innerHTML=h;
+  document.getElementById("btnQuickAdd").style.display="none";
+  checkVersion()
+}
+function checkVersion(){
+  document.getElementById("vLocal").textContent="查询中...";
+  document.getElementById("vRemote").textContent="查询中...";
+  fetch("/api/version").then(function(r){return r.json()}).then(function(d){
+    var lh=d.local.hash||"?";
+    var lt=d.local.time||"";
+    document.getElementById("vLocal").textContent=lh+(lt?" ("+lt+")":"");
+    var rh=d.remote.hash||"无远程信息";
+    document.getElementById("vRemote").textContent=rh;
+    if(d.local.hash&&d.remote.hash){
+      if(d.local.hash===d.remote.hash){
+        document.getElementById("cfgMsg").textContent="✅ 已是最新版本";
+      }else{
+        document.getElementById("cfgMsg").textContent="⬆️ 有新版本可用，请 git pull 更新";
+      }
+    }
+  }).catch(function(e){
+    document.getElementById("vLocal").textContent="获取失败";
+    document.getElementById("vRemote").textContent="获取失败";
+    document.getElementById("cfgMsg").textContent="版本查询失败: "+e
+  })
+}
 function cfgAddRow(){
   var tbl=document.querySelector("#cfgBody table");
   if(!tbl){document.getElementById("cfgMsg").textContent="\u8BF7\u5148\u9009\u62E9\u4E00\u4E2A\u5206\u7C7B";return}
@@ -450,7 +491,7 @@ function cfgAddRow(){
   tbl.appendChild(tr)
 }
 function cfgQuickAdd(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
   var key=groups[window._cfgTab];
   var k,v,label;
   if(key==="packages"){k=_cache.fg_pkg;v=_cache.fg;label="包名"}
@@ -470,10 +511,10 @@ function cfgQuickAdd(){
   document.getElementById("cfgMsg").textContent="已添加: "+k+(v?" → "+v:"")
 }
 function saveCfg(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
   // 收集当前可见标签页数据
   var curKey=groups[window._cfgTab];
-  if(curKey==="process"){document.getElementById("cfgMsg").textContent="进程管理无需保存";return}
+  if(curKey==="process"||curKey==="version"){document.getElementById("cfgMsg").textContent="该页面无需保存";return}
   if(curKey==="autostart"){
     // 从开关收集
     var autoData={};
