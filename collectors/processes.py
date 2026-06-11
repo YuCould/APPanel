@@ -83,11 +83,12 @@ def collect() -> dict:
                 if any(x in proc_name for x in adb_tools):
                     app_name = "APPanel"
                 else:
-                    app_name = _resolve_app_name(proc_name)
-                    # Python 子进程（带参数）显示为 py
                     base = proc_name.split()[0] if proc_name else ""
-                    if app_name == "APPanel" and base in ("python", "python3") and len(proc_name.split()) > 1:
+                    # Python -c 子进程（如 multiprocessing spawn）显示为 py
+                    if base in ("python", "python3") and " -c " in proc_name:
                         app_name = "py"
+                    else:
+                        app_name = _resolve_app_name(proc_name)
                 processes.append({
                     "p": fields[0], "u": "?", "c": fields[1],
                     "m": rss_display, "mn": mem_mb,

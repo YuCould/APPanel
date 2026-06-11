@@ -65,7 +65,10 @@ body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);displ
 .p1{width:50px;text-align:right;color:var(--p1)}
 .p2{width:50px;text-align:right;color:var(--p2)}
 .p3{color:var(--p3);font-size:10px;overflow:hidden;text-overflow:ellipsis;max-width:70px}
-.p4{color:var(--p3);font-size:10px;overflow:hidden;text-overflow:ellipsis}
+.p4{color:var(--p3);font-size:10px;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:2px}
+.p4 .cpText{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+.p4 .cpBtn{flex:none;cursor:pointer;font-size:10px;opacity:.4;padding:0 2px;transition:opacity .15s}
+.p4 .cpBtn:hover{opacity:1}
 #floatOverlay,#cfgOverlay,#filesOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:8px}
 
 /* 移动端布局 */
@@ -267,6 +270,8 @@ document.body.addEventListener("click",function(e){
   // 进程表行点击复制
   var row=t.closest(".procRow");
   if(row){doCopy(row.getAttribute("data-cl")||"");return}
+  // 包名复制按钮
+  if(t.classList.contains("cpBtn")){doCopy(t.getAttribute("data-cl")||"");t.textContent="✅";setTimeout(function(){t.textContent="📋"},800);return}
 });
 
 // 温度警告浮动提示（hover 显示）
@@ -916,7 +921,7 @@ function render(){
   // 桌面端进程表 (innerHTML 批量更新)
   var _h='';
   for(var i=0;i<30;i++){
-    if(i<pr.length){var p=pr[i];_h+='<tr class=procRow data-cl="'+e(p.cl||'')+'" style=cursor:pointer title="点击复制: '+e(p.cl||'')+'"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4>'+e(p.cl||'')+'</td></tr>'}
+    if(i<pr.length){var p=pr[i];_h+='<tr class=procRow data-cl="'+e(p.cl||'')+'" style=cursor:pointer title="点击复制: '+e(p.cl||'')+'"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4><span class=cpText>'+e(p.cl||'')+'</span><span class=cpBtn data-cl="'+e(p.cl||'')+'">📋</span></td></tr>'}
     else{_h+='<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'}
   }
   document.getElementById("proc").innerHTML=_h;
@@ -925,7 +930,7 @@ function render(){
   if(mt&&document.getElementById("floatOverlay").style.display==="flex"){
     var _mh='';
     for(var i=0;i<30;i++){
-      if(i<pr.length){var p=pr[i];_mh+='<tr class=procRow data-cl="'+e(p.cl||'')+'" style=cursor:pointer title="点击复制: '+e(p.cl||'')+'"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4>'+e(p.cl||'')+'</td></tr>'}
+      if(i<pr.length){var p=pr[i];_mh+='<tr class=procRow data-cl="'+e(p.cl||'')+'" style=cursor:pointer title="点击复制: '+e(p.cl||'')+'"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4><span class=cpText>'+e(p.cl||'')+'</span><span class=cpBtn data-cl="'+e(p.cl||'')+'">📋</span></td></tr>'}
       else{_mh+='<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'}
     }
     mt.innerHTML=_mh;

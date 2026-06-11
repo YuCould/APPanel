@@ -6,7 +6,7 @@
 """
 import os, json, threading
 
-from logger import info, error, warn
+from logger import info, error
 
 # ── settings.json 路径与内存映射 ──
 _CPU_MAP_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "settings.json")
