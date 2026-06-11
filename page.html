@@ -15,7 +15,6 @@ body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);displ
 .top{height:110px;display:flex;flex-direction:column;padding:6px 12px 0;flex-shrink:0;}
 .bot{flex:1;display:flex;gap:8px;padding:0 12px 12px;min-height:0;margin-top:10px}
 .lf{width:20%;max-width:200px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px;overflow:hidden;display:flex;flex-direction:column;gap:4px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
-.rt{flex:1;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px;overflow:hidden;display:flex;flex-direction:column;gap:4px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
 
 /* 头部标题 */
 .hdr{display:flex;justify-content:space-between;align-items:center;height:30px;flex-shrink:0;overflow:hidden;margin-bottom:4px}
@@ -67,9 +66,7 @@ body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);displ
 .p2{width:50px;text-align:right;color:var(--p2)}
 .p3{color:var(--p3);font-size:10px;overflow:hidden;text-overflow:ellipsis;max-width:70px}
 .p4{color:var(--p3);font-size:10px;overflow:hidden;text-overflow:ellipsis}
-#floatOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:8px}
-#cfgOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:8px}
-#filesOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:8px}
+#floatOverlay,#cfgOverlay,#filesOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:8px}
 
 /* 移动端布局 */
 @media(max-width:768px){
@@ -100,9 +97,7 @@ body{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:
 .bmb .danger{animation:dangerBreath 1.2s ease-in-out infinite;border-color:#ef4444;color:#ef4444}
 .bmb .scroff{border-color:#facc15;color:#facc15}
 .bmb .active{border-color:var(--title);color:var(--title)}
-#floatOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:4px}
-#cfgOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:4px}
-#filesOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:4px}
+#floatOverlay,#cfgOverlay,#filesOverlay{padding:4px}
 #fc1,#fc2,#fc3{width:100%!important;height:92%!important}
 }
 .cfg-tbl{width:100%;border-collapse:collapse;font-size:12px}
@@ -272,7 +267,8 @@ function toggleTheme(){
 }
 
 function e(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
-function ud(k,v){var el=document.getElementById(k);if(el)el.textContent=v}
+var _lastV={};
+function ud(k,v){var el=document.getElementById(k);if(el&&_lastV[k]!==v){el.textContent=v;_lastV[k]=v}}
 
 // 复制提示浮层
 function copyTip(text){
@@ -394,7 +390,7 @@ function cfgRenderTable(){
 function renderAutostart(){
   var data=window._cfgData.autostart||{};
   var keys=Object.keys(data);
-  var autolabels={sshd:"SSH \u670D\u52A1",dashboard:"APPanel \u4EEA\u8868\u76D8",ap_backend:"AP \u540E\u7AEF",auto_screen_off:"AP\u540E\u7AEF\u8FD0\u884C\u81EA\u52A8\u7184\u5C4F",kill_azurlane:"\u7535\u6C60\u226550\u00B0C\u6740\u78A7\u84DD\u822A\u7EBF",kill_ap_hot:"\u7535\u6C60\u226550\u00B0C\u5173\u95EDAP\u8FDB\u7A0B"};
+  var autolabels={sshd:"SSH \u670D\u52A1",dashboard:"APPanel \u4EEA\u8868\u76D8",ap_backend:"AP \u540E\u7AEF",auto_screen_off:"AP\u540E\u7AEF\u8FD0\u884C\u81EA\u52A8\u7184\u5C4F",kill_azurlane:"\u7535\u6C60\u226550\u00B0C\u6740\u78A7\u84DD\u822A\u7EBF",kill_ap_hot:"\u7535\u6C60\u226550\u00B0C\u5173\u95EDAP\u8FDB\u7A0B",fix_adb_port:"\u81EA\u52A8\u56FA\u5B9AADB\u7AEF\u53E3\u4E3A5555"};
   var h='<div style=display:flex;flex-direction:column;gap:4px>';
   for(var i=0;i<keys.length;i++){
     var label=autolabels[keys[i]]||keys[i];
@@ -527,7 +523,9 @@ function renderPorts(){
   h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>Flask(web) 端口</span><input id=portFlask type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
   h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>WebSocket 端口</span><input id=portWs type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
   h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>AP(ALAS) 端口</span><input id=portAp type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
-  h+='<div style=font-size:11px;color:var(--p3);margin-top:4px>留空则使用默认值（Flask:80, WS:5001, AP:22267）</div>';
+  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>ADB 端口</span><input id=portAdb type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
+  h+='<div style=font-size:11px;color:var(--p3);margin-top:4px>留空则使用默认值（Flask:80, WS:5001, AP:22267, ADB:5555）</div>';
+  h+='<div style=font-size:11px;color:#facc15;margin-top:2px>⚠️ ADB端口：无 root 每次重启后需重新开启无线调试并配对</div>';
   h+='<div style=font-size:11px;color:#facc15;margin-top:2px>⚠️ 修改后需重启 APPanel 才能生效</div>';
   h+='</div></div>';
   h+='</div>';
@@ -539,6 +537,7 @@ function renderPorts(){
       document.getElementById("portFlask").value=d.current.flask_port||"";
       document.getElementById("portWs").value=d.current.ws_port||"";
       document.getElementById("portAp").value=d.current.ap_port||"";
+      document.getElementById("portAdb").value=d.current.adb_port||"";
     }
   }).catch(function(e){document.getElementById("cfgMsg").textContent="端口配置加载失败: "+e})
 }
@@ -546,10 +545,12 @@ function savePorts(){
   var fp=document.getElementById("portFlask").value;
   var wp=document.getElementById("portWs").value;
   var ap=document.getElementById("portAp").value;
+  var adb=document.getElementById("portAdb").value;
   fetch("/api/ports",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
     flask_port: fp?parseInt(fp):null,
     ws_port: wp?parseInt(wp):null,
-    ap_port: ap?parseInt(ap):null
+    ap_port: ap?parseInt(ap):null,
+    adb_port: adb?parseInt(adb):null
   })}).then(function(r){return r.json()}).then(function(d){
     document.getElementById("cfgMsg").textContent=d.message||(d.status==="ok"?"已保存":"保存失败");
   }).catch(function(e){document.getElementById("cfgMsg").textContent="保存失败: "+e})

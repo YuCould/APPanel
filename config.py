@@ -22,7 +22,7 @@ _port_overrides = _load_port_overrides()
 
 # ── ADB 连接 ──
 ADB_HOST: str = "127.0.0.1"
-ADB_PORT: int = 5555
+ADB_PORT: int = _port_overrides.get("adb_port") or 5555
 ADB_ADDRESS: str = f"{ADB_HOST}:{ADB_PORT}"  # "127.0.0.1:5555"
 
 def adb_cmd(cmd_str: str) -> str:

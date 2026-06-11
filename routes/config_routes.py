@@ -37,6 +37,11 @@ _AUTOSTART_ITEMS = {
         "check": "pgrep -f apkill_watch > /dev/null",
         "start": "nohup sh -c '#apkill_watch\nwhile sleep 10; do t=$(dumpsys battery 2>/dev/null | grep temperature | awk \"{print \\$2}\"); if [ -n \"$t\" ] && [ \"$t\" -ge 500 ]; then pkill -f python.*gui.py 2>/dev/null; pkill -f start_ap.sh 2>/dev/null; fi; done' > /dev/null 2>&1 &",
     },
+    "fix_adb_port": {
+        "label": "自动固定ADB端口为5555",
+        "check": "pgrep -f fix_adb_watch > /dev/null",
+        "start": "nohup sh -c '#fix_adb_watch\nwhile sleep 60; do\n  if ! adb get-state 2>/dev/null | grep -q device; then\n    port=$(dumpsys adb 2>/dev/null | grep -o \"port=[0-9]*\" | head -1 | cut -d= -f2)\n    if [ -z \"$port\" ] || [ \"$port\" = \"null\" ]; then\n      port=$(settings get global adb_wifi_connection_port 2>/dev/null)\n    fi\n    if [ -n \"$port\" ] && [ \"$port\" != \"null\" ]; then\n      adb connect 127.0.0.1:\"$port\" 2>/dev/null\n      sleep 4\n      adb tcpip 5555 2>/dev/null\n      sleep 2\n      adb connect 127.0.0.1:5555 2>/dev/null\n    fi\n  fi\ndone' > /dev/null 2>&1 &",
+    },
 }
 
 

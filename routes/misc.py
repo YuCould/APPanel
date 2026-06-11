@@ -160,7 +160,7 @@ def register(app) -> None:
             try:
                 data = request.get_json(force=True)
                 content = {"说明": "端口配置覆盖文件，留空或删掉此文件则使用 config.py 中的默认值"}
-                for k in ("flask_port", "ws_port", "ap_port"):
+                for k in ("flask_port", "ws_port", "ap_port", "adb_port"):
                     v = data.get(k)
                     content[k] = v if (v is not None and str(v).strip()) else None
                 with open(_port_path, "w", encoding="utf-8") as f:
@@ -178,11 +178,13 @@ def register(app) -> None:
                     "flask_port": cfg.get("flask_port"),
                     "ws_port": cfg.get("ws_port"),
                     "ap_port": cfg.get("ap_port"),
+                    "adb_port": cfg.get("adb_port"),
                 },
                 "defaults": {
                     "flask_port": 80,
                     "ws_port": 5001,
                     "ap_port": 22267,
+                    "adb_port": 5555,
                 },
             })
         except Exception as e:
