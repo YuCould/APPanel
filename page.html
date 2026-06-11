@@ -341,8 +341,8 @@ function toggleCfg(){
   }).catch(function(e){document.getElementById("cfgMsg").textContent="无法加载，请确认服务器已重启 (需支持 /api/config 接口)"})
 }
 function cfgRenderSide(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
-  var labels={chips:"\u82AF\u7247",packages:"\u5E94\u7528",implementers:"\u5382\u5546ID",vendor_keywords:"\u5173\u952E\u8BCD",autostart:"\u81EA\u542F\u52A8",process:"\u8FDB\u7A0B",version:"\u7248\u672C"};
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports"];
+  var labels={chips:"\u82AF\u7247",packages:"\u5E94\u7528",implementers:"\u5382\u5546ID",vendor_keywords:"\u5173\u952E\u8BCD",autostart:"\u81EA\u542F\u52A8",process:"\u8FDB\u7A0B",version:"\u7248\u672C",ports:"\u7AEF\u53E3"};
   var h='<div style="font-size:10px;color:var(--p3);padding:2px 4px;margin-bottom:2px">\u5206\u7C7B</div>';
   for(var i=0;i<groups.length;i++){
     var k=groups[i];
@@ -354,19 +354,22 @@ function cfgRenderSide(){
   document.getElementById("cfgSide").innerHTML=h
 }
 function cfgSelectTab(key){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports"];
   window._cfgTab=groups.indexOf(key);
   cfgRenderSide();
   cfgRenderTable()
 }
 function cfgRenderTable(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports"];
   var key=groups[window._cfgTab];
   if(key==="process"){
     renderProcess();return
   }
   if(key==="version"){
     renderVersion();return
+  }
+  if(key==="ports"){
+    renderPorts();return
   }
   var data=window._cfgData[key]||{};
   var keys=Object.keys(data);
@@ -387,7 +390,7 @@ function cfgRenderTable(){
 function renderAutostart(){
   var data=window._cfgData.autostart||{};
   var keys=Object.keys(data);
-  var autolabels={sshd:"SSH \u670D\u52A1",dashboard:"APPanel \u4EEA\u8868\u76D8",ap_backend:"AP \u540E\u7AEF"};
+  var autolabels={sshd:"SSH \u670D\u52A1",dashboard:"APPanel \u4EEA\u8868\u76D8",ap_backend:"AP \u540E\u7AEF",auto_screen_off:"AP\u540E\u7AEF\u8FD0\u884C\u81EA\u52A8\u7184\u5C4F",kill_azurlane:"\u7535\u6C60\u226550\u00B0C\u6740\u78A7\u84DD\u822A\u7EBF",kill_ap_hot:"\u7535\u6C60\u226550\u00B0C\u5173\u95EDAP\u8FDB\u7A0B"};
   var h='<div style=display:flex;flex-direction:column;gap:4px>';
   for(var i=0;i<keys.length;i++){
     var label=autolabels[keys[i]]||keys[i];
@@ -455,7 +458,10 @@ function renderVersion(){
   h+='<div style=font-size:11px;color:var(--p3);margin-bottom:6px>🌐 远程最新</div>';
   h+='<div id=vRemote style=font-size:14px;font-weight:600;color:var(--fg)>加载中...</div>';
   h+='</div>';
-  h+='<button onclick=\'checkVersion()\' style="background:var(--th-on);border:none;color:var(--bg);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;margin-top:4px">🔄 刷新</button>';
+  h+='<div style=display:flex;gap:6px;margin-top:4px>';
+  h+='<button onclick=\'checkVersion()\' style="flex:1;background:var(--th-on);border:none;color:var(--bg);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600">🔄 刷新</button>';
+  h+='<button id=btnPullUpdate onclick=\'pullUpdate()\' style="display:none;flex:1;background:#4ade80;border:none;color:#000;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600">⬇️ 一键拉取更新</button>';
+  h+='</div>';
   h+='</div>';
   document.getElementById("cfgBody").innerHTML=h;
   document.getElementById("btnQuickAdd").style.display="none";
@@ -464,6 +470,7 @@ function renderVersion(){
 function checkVersion(){
   document.getElementById("vLocal").textContent="查询中...";
   document.getElementById("vRemote").textContent="查询中...";
+  document.getElementById("btnPullUpdate").style.display="none";
   fetch("/api/version").then(function(r){return r.json()}).then(function(d){
     var lh=d.local.hash||"?";
     var lt=d.local.time||"";
@@ -474,7 +481,8 @@ function checkVersion(){
       if(d.local.hash===d.remote.hash){
         document.getElementById("cfgMsg").textContent="✅ 已是最新版本";
       }else{
-        document.getElementById("cfgMsg").textContent="⬆️ 有新版本可用，请 git pull 更新";
+        document.getElementById("cfgMsg").textContent="⬆️ 有新版本可用";
+        document.getElementById("btnPullUpdate").style.display=""
       }
     }
   }).catch(function(e){
@@ -482,6 +490,69 @@ function checkVersion(){
     document.getElementById("vRemote").textContent="获取失败";
     document.getElementById("cfgMsg").textContent="版本查询失败: "+e
   })
+}
+function pullUpdate(){
+  if(!confirm("确定要拉取最新代码并重启吗？"))return;
+  var btn=document.getElementById("btnPullUpdate");
+  btn.textContent="⏳ 正在更新...";
+  btn.disabled=true;
+  fetch("/api/update",{method:"POST"}).then(function(r){return r.json()}).then(function(d){
+    if(d.status==="ok"){
+      document.getElementById("cfgMsg").textContent=d.message||"更新成功，正在重启...";
+      btn.textContent="✅ 更新完成";
+    }else{
+      document.getElementById("cfgMsg").textContent="更新失败: "+(d.message||"未知错误");
+      btn.textContent="⬇️ 一键拉取更新";
+      btn.disabled=false
+    }
+  }).catch(function(e){
+    document.getElementById("cfgMsg").textContent="更新请求失败: "+e;
+    btn.textContent="⬇️ 一键拉取更新";
+    btn.disabled=false
+  })
+}
+      }
+    }
+  }).catch(function(e){
+    document.getElementById("vLocal").textContent="获取失败";
+    document.getElementById("vRemote").textContent="获取失败";
+    document.getElementById("cfgMsg").textContent="版本查询失败: "+e
+  })
+}
+function renderPorts(){
+  var h='<div style=display:flex;flex-direction:column;gap:8px;padding:6px;font-size:13px>';
+  h+='<div style="padding:10px 12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px">';
+  h+='<div style=font-size:11px;color:var(--p3);margin-bottom:8px>🔌 APPanel 端口</div>';
+  h+='<div style=display:flex;flex-direction:column;gap:6px>';
+  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>Flask 端口</span><input id=portFlask type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
+  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>WebSocket 端口</span><input id=portWs type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
+  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>AP 后端端口</span><input id=portAp type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
+  h+='<div style=font-size:11px;color:var(--p3);margin-top:4px>留空则使用默认值（Flask:80, WS:5001, AP:22267）</div>';
+  h+='<div style=font-size:11px;color:#facc15;margin-top:2px>⚠️ 修改后需重启 APPanel 才能生效</div>';
+  h+='</div></div>';
+  h+='</div>';
+  document.getElementById("cfgBody").innerHTML=h;
+  document.getElementById("btnQuickAdd").style.display="none";
+  // 加载当前配置
+  fetch("/api/ports").then(function(r){return r.json()}).then(function(d){
+    if(d.status==="ok"&&d.current){
+      document.getElementById("portFlask").value=d.current.flask_port||"";
+      document.getElementById("portWs").value=d.current.ws_port||"";
+      document.getElementById("portAp").value=d.current.ap_port||"";
+    }
+  }).catch(function(e){document.getElementById("cfgMsg").textContent="端口配置加载失败: "+e})
+}
+function savePorts(){
+  var fp=document.getElementById("portFlask").value;
+  var wp=document.getElementById("portWs").value;
+  var ap=document.getElementById("portAp").value;
+  fetch("/api/ports",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    flask_port: fp?parseInt(fp):null,
+    ws_port: wp?parseInt(wp):null,
+    ap_port: ap?parseInt(ap):null
+  })}).then(function(r){return r.json()}).then(function(d){
+    document.getElementById("cfgMsg").textContent=d.message||(d.status==="ok"?"已保存":"保存失败");
+  }).catch(function(e){document.getElementById("cfgMsg").textContent="保存失败: "+e})
 }
 function cfgAddRow(){
   var tbl=document.querySelector("#cfgBody table");
@@ -491,7 +562,7 @@ function cfgAddRow(){
   tbl.appendChild(tr)
 }
 function cfgQuickAdd(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports"];
   var key=groups[window._cfgTab];
   var k,v,label;
   if(key==="packages"){k=_cache.fg_pkg;v=_cache.fg;label="包名"}
@@ -511,10 +582,11 @@ function cfgQuickAdd(){
   document.getElementById("cfgMsg").textContent="已添加: "+k+(v?" → "+v:"")
 }
 function saveCfg(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports"];
   // 收集当前可见标签页数据
   var curKey=groups[window._cfgTab];
   if(curKey==="process"||curKey==="version"){document.getElementById("cfgMsg").textContent="该页面无需保存";return}
+  if(curKey==="ports"){savePorts();return}
   if(curKey==="autostart"){
     // 从开关收集
     var autoData={};

@@ -3,7 +3,22 @@
 """
 APPanel 全局配置
 所有硬编码地址、端口集中管理，一处修改全局生效。
+端口值可通过 port_config.json 覆盖（设置页面编辑后无需改此文件）。
 """
+import os, json
+
+_PORT_CFG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "port_config.json")
+
+def _load_port_overrides() -> dict:
+    try:
+        if os.path.exists(_PORT_CFG_PATH):
+            with open(_PORT_CFG_PATH, encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return {}
+
+_port_overrides = _load_port_overrides()
 
 # ── ADB 连接 ──
 ADB_HOST: str = "127.0.0.1"
@@ -16,10 +31,10 @@ def adb_cmd(cmd_str: str) -> str:
 
 # ── 网络服务 ──
 HOST: str = "0.0.0.0"
-WS_PORT: int = 5001          # WebSocket 广播端口
-FLASK_PORT: int = 80         # Flask 主端口
-FLASK_FALLBACK_PORT: int = 20080  # Flask 备用端口
+WS_PORT: int = _port_overrides.get("ws_port") or 5001          # WebSocket 广播端口
+FLASK_PORT: int = _port_overrides.get("flask_port") or 80       # Flask 主端口
+FLASK_FALLBACK_PORT: int = 20080                                # Flask 备用端口
 
 # ── AP 后端检测 ──
 AP_HOST: str = "127.0.0.1"
-AP_PORT: int = 22267
+AP_PORT: int = _port_overrides.get("ap_port") or 22267

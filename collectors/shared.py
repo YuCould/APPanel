@@ -70,6 +70,9 @@ if not _load_settings():
         "sshd": False,
         "dashboard": False,
         "ap_backend": False,
+        "auto_screen_off": False,
+        "kill_azurlane": False,
+        "kill_ap_hot": False,
     }
     try:
         with open(_CPU_MAP_PATH, "w", encoding="utf-8") as _f:

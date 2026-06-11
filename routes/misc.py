@@ -134,6 +134,60 @@ def register(app) -> None:
             "remote": {"hash": remote_hash},
         })
 
+    @app.route("/api/update", methods=["POST"])
+    def api_update():
+        """一键拉取 Git 更新并重启"""
+        import subprocess as _sp
+        try:
+            r = _sp.run(["git", "pull"], capture_output=True, text=True, timeout=30, cwd=_BASE)
+            if r.returncode != 0:
+                return jsonify({"status": "error", "message": r.stderr.strip() or r.stdout.strip()}), 500
+            # 重启
+            def _do():
+                time.sleep(2)
+                os.execl(sys.executable, sys.executable, *sys.argv)
+            threading.Thread(target=_do, daemon=False).start()
+            return jsonify({"status": "ok", "message": "更新成功，正在重启…", "output": r.stdout.strip()})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+
+    @app.route("/api/ports", methods=["GET", "POST"])
+    def api_ports():
+        """读取/写入端口配置"""
+        import json as _json
+        _port_path = os.path.join(_BASE, "port_config.json")
+        if request.method == "POST":
+            try:
+                data = request.get_json(force=True)
+                content = {"说明": "端口配置覆盖文件，留空或删掉此文件则使用 config.py 中的默认值"}
+                for k in ("flask_port", "ws_port", "ap_port"):
+                    v = data.get(k)
+                    content[k] = v if (v is not None and str(v).strip()) else None
+                with open(_port_path, "w", encoding="utf-8") as f:
+                    _json.dump(content, f, indent=2, ensure_ascii=False)
+                return jsonify({"status": "ok", "message": "端口配置已保存，重启 APPanel 后生效"})
+            except Exception as e:
+                return jsonify({"status": "error", "message": str(e)}), 500
+        # GET
+        try:
+            with open(_port_path, encoding="utf-8") as f:
+                cfg = _json.load(f)
+            return jsonify({
+                "status": "ok",
+                "current": {
+                    "flask_port": cfg.get("flask_port"),
+                    "ws_port": cfg.get("ws_port"),
+                    "ap_port": cfg.get("ap_port"),
+                },
+                "defaults": {
+                    "flask_port": 80,
+                    "ws_port": 5001,
+                    "ap_port": 22267,
+                },
+            })
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+
     @app.route("/mpegts.js")
     def mpegts_js():
         return "", 204

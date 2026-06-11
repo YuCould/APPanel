@@ -22,6 +22,21 @@ _AUTOSTART_ITEMS = {
         "check": "pgrep -f 'python.*gui.py' > /dev/null",
         "start": "[ -f ~/start_ap.sh ] && bash ~/start_ap.sh >/dev/null 2>&1",
     },
+    "auto_screen_off": {
+        "label": "AP后端运行自动熄屏",
+        "check": "pgrep -f auto_screen_watch > /dev/null",
+        "start": "nohup sh -c '#auto_screen_watch\nwhile sleep 5; do if pgrep -f python.*gui.py > /dev/null; then svc power stayon true; input keyevent 223; fi; done' > /dev/null 2>&1 &",
+    },
+    "kill_azurlane": {
+        "label": "电池≥50°C杀碧蓝航线",
+        "check": "pgrep -f azurlane_watch > /dev/null",
+        "start": "nohup sh -c '#azurlane_watch\nwhile sleep 10; do t=$(dumpsys battery 2>/dev/null | grep temperature | awk \"{print \\$2}\"); if [ -n \"$t\" ] && [ \"$t\" -ge 500 ]; then am force-stop com.bilibili.azurlane; fi; done' > /dev/null 2>&1 &",
+    },
+    "kill_ap_hot": {
+        "label": "电池≥50°C关闭AP进程",
+        "check": "pgrep -f apkill_watch > /dev/null",
+        "start": "nohup sh -c '#apkill_watch\nwhile sleep 10; do t=$(dumpsys battery 2>/dev/null | grep temperature | awk \"{print \\$2}\"); if [ -n \"$t\" ] && [ \"$t\" -ge 500 ]; then pkill -f python.*gui.py 2>/dev/null; pkill -f start_ap.sh 2>/dev/null; fi; done' > /dev/null 2>&1 &",
+    },
 }
 
 
