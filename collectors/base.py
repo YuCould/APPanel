@@ -32,8 +32,14 @@ def _local(c: str, to: int = 5) -> str:
 
 
 def _adb(c: str, to: int = 5) -> str:
-    """通过 ADB 在设备上执行"""
-    return cmd(f'adb -s {ADB_ADDRESS} shell "{c}"', to)
+    """通过 ADB 在设备上执行（使用列表参数避免 Windows shell 引号问题）"""
+    try:
+        return subprocess.run(
+            ["adb", "-s", ADB_ADDRESS, "shell", c],
+            capture_output=True, text=True, timeout=to
+        ).stdout.strip()
+    except Exception:
+        return ""
 
 
 def _try_local(c_local: str, c_adb: str, to: int = 5) -> str:

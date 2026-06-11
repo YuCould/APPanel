@@ -49,13 +49,18 @@ def register(app) -> None:
             action = request.get_json(force=True).get("action", "")
             if action == "off":
                 _adb("svc power stayon true", 3)
-                _adb("app_process -Djava.class.path=/data/local/tmp/escrcpy.dex /data/local/tmp com.apanel.ScreenEscrcpy 0", 10)
+                # 优先使用 SurfaceControl，失败则 fallback 到 KEYCODE_SLEEP (不锁频)
+                r = _adb("app_process -Djava.class.path=/data/local/tmp/escrcpy.dex /data/local/tmp com.apanel.ScreenEscrcpy 0", 10)
+                if not r:
+                    _adb("input keyevent 223", 3)
                 with _data_lock:
                     _sd["screen_on"] = False
                 CACHE["screen_on"] = False
                 return jsonify({"status": "ok", "screen": "off"})
             elif action == "on":
-                _adb("app_process -Djava.class.path=/data/local/tmp/escrcpy.dex /data/local/tmp com.apanel.ScreenEscrcpy 2", 10)
+                r = _adb("app_process -Djava.class.path=/data/local/tmp/escrcpy.dex /data/local/tmp com.apanel.ScreenEscrcpy 2", 10)
+                if not r:
+                    _adb("input keyevent 224", 3)
                 with _data_lock:
                     _sd["screen_on"] = True
                 CACHE["screen_on"] = True
