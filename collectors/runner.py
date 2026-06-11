@@ -77,6 +77,7 @@ def _init_lostat() -> None:
     _man_cn = _man_map.get(_man, _local('getprop ro.product.manufacturer', 2) or "?")
     _codename_str = f" ({_codename.strip()})" if _codename.strip() and _codename.strip() != _model.strip() else ""
     LOSTAT["md"] = f"{_man_cn} {_model}{_codename_str}"
+    LOSTAT["brand"] = _man_cn
     dn = _try_local("settings get global device_name 2>/dev/null",
                     "settings get global device_name 2>/dev/null", 5) or ""
     LOSTAT["dn"] = dn.strip() if dn.strip() else _model or "?"
