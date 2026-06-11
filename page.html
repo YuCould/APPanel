@@ -511,14 +511,6 @@ function pullUpdate(){
     btn.disabled=false
   })
 }
-      }
-    }
-  }).catch(function(e){
-    document.getElementById("vLocal").textContent="获取失败";
-    document.getElementById("vRemote").textContent="获取失败";
-    document.getElementById("cfgMsg").textContent="版本查询失败: "+e
-  })
-}
 function renderPorts(){
   var h='<div style=display:flex;flex-direction:column;gap:8px;padding:6px;font-size:13px>';
   h+='<div style="padding:10px 12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px">';
