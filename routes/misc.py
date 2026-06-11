@@ -139,7 +139,16 @@ def register(app) -> None:
         """一键拉取 Git 更新并重启"""
         import subprocess as _sp
         try:
-            r = _sp.run(["git", "pull"], capture_output=True, text=True, timeout=30, cwd=_BASE)
+            # 适配 shallow clone：fetch 最新 + hard reset
+            r = _sp.run(["git", "fetch", "--depth", "1", "origin", "master"],
+                capture_output=True, text=True, timeout=30, cwd=_BASE)
+            if r.returncode != 0:
+                # fallback: 普通 pull
+                r = _sp.run(["git", "pull"],
+                    capture_output=True, text=True, timeout=30, cwd=_BASE)
+            else:
+                r = _sp.run(["git", "reset", "--hard", "origin/master"],
+                    capture_output=True, text=True, timeout=15, cwd=_BASE)
             if r.returncode != 0:
                 return jsonify({"status": "error", "message": r.stderr.strip() or r.stdout.strip()}), 500
             # 重启
