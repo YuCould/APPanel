@@ -67,9 +67,9 @@ if not _load_settings():
     }
     _CPU_MAP["packages"] = {"python3": "APPanel", "python": "APPanel", "dashboard.py": "APPanel"}
     _CPU_MAP["autostart"] = {
-        "sshd": True,
-        "dashboard": True,
-        "ap_backend": True,
+        "sshd": False,
+        "dashboard": False,
+        "ap_backend": False,
     }
     try:
         with open(_CPU_MAP_PATH, "w", encoding="utf-8") as _f:

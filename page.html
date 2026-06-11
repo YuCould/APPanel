@@ -341,8 +341,8 @@ function toggleCfg(){
   }).catch(function(e){document.getElementById("cfgMsg").textContent="无法加载，请确认服务器已重启 (需支持 /api/config 接口)"})
 }
 function cfgRenderSide(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart"];
-  var labels={chips:"\u82AF\u7247",packages:"\u5E94\u7528",implementers:"\u5382\u5546ID",vendor_keywords:"\u5173\u952E\u8BCD",autostart:"\u81EA\u542F\u52A8"};
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
+  var labels={chips:"\u82AF\u7247",packages:"\u5E94\u7528",implementers:"\u5382\u5546ID",vendor_keywords:"\u5173\u952E\u8BCD",autostart:"\u81EA\u542F\u52A8",process:"\u8FDB\u7A0B"};
   var h='<div style="font-size:10px;color:var(--p3);padding:2px 4px;margin-bottom:2px">\u5206\u7C7B</div>';
   for(var i=0;i<groups.length;i++){
     var k=groups[i];
@@ -354,14 +354,17 @@ function cfgRenderSide(){
   document.getElementById("cfgSide").innerHTML=h
 }
 function cfgSelectTab(key){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
   window._cfgTab=groups.indexOf(key);
   cfgRenderSide();
   cfgRenderTable()
 }
 function cfgRenderTable(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
   var key=groups[window._cfgTab];
+  if(key==="process"){
+    renderProcess();return
+  }
   var data=window._cfgData[key]||{};
   var keys=Object.keys(data);
   if(key==="autostart"){
@@ -404,6 +407,41 @@ function renderAutostart(){
   });
   document.getElementById("btnQuickAdd").style.display="none"
 }
+function renderProcess(){
+  var h='<div style=display:flex;flex-direction:column;gap:2px;font-size:12px>';
+  var pr=_cache.pr||[];
+  if(pr.length===0){
+    h+='<div style="padding:20px;text-align:center;color:var(--p3)">暂无进程数据，等待 WebSocket 推送...</div>'
+  }else{
+    // 按 CPU 排序
+    var sorted=JSON.parse(JSON.stringify(pr)).sort(function(a,b){return (parseFloat(b.c)||0)-(parseFloat(a.c)||0)});
+    for(var i=0;i<sorted.length;i++){
+      var p=sorted[i];
+      var pid=p.p,mem=p.m||'-',cpu=p.c||'-',name=p.an||p.n||'-',pkg=p.cl||'';
+      h+='<div style="display:flex;align-items:center;gap:4px;padding:4px 6px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px">';
+      h+='<span style=width:50px;color:var(--p0);font-size:10px>'+pid+'</span>';
+      h+='<span style=width:40px;color:var(--p1);font-size:10px>'+cpu+'%</span>';
+      h+='<span style=width:60px;color:var(--p2);font-size:10px>'+mem+'</span>';
+      h+='<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">'+e(name)+'</span>';
+      h+='<button onclick=\'killProc("'+pid+'","'+e(pkg.replace(/"/g,""))+'")\' style="background:rgba(239,68,68,.15);border:none;color:#ef4444;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 8px;font-weight:600">KILL</button>';
+      h+='</div>'
+    }
+  }
+  h+='</div>';
+  document.getElementById("cfgBody").innerHTML=h;
+  document.getElementById("btnQuickAdd").style.display="none"
+}
+function killProc(pid,pkg){
+  if(!confirm("确定要 kill 进程 "+pid+(pkg?" ("+pkg+")":"")+" 吗？"))return;
+  var body={pid:pid};
+  if(pkg)body.pkg=pkg;
+  fetch("/api/kill",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      document.getElementById("cfgMsg").textContent=d.results?d.results.join("; "):(d.message||"kill 完成");
+      if(d.status==="ok")setTimeout(renderProcess,2000)
+    }).catch(function(e){document.getElementById("cfgMsg").textContent="请求失败: "+e})
+}
 function cfgAddRow(){
   var tbl=document.querySelector("#cfgBody table");
   if(!tbl){document.getElementById("cfgMsg").textContent="\u8BF7\u5148\u9009\u62E9\u4E00\u4E2A\u5206\u7C7B";return}
@@ -412,7 +450,7 @@ function cfgAddRow(){
   tbl.appendChild(tr)
 }
 function cfgQuickAdd(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
   var key=groups[window._cfgTab];
   var k,v,label;
   if(key==="packages"){k=_cache.fg_pkg;v=_cache.fg;label="包名"}
@@ -432,9 +470,10 @@ function cfgQuickAdd(){
   document.getElementById("cfgMsg").textContent="已添加: "+k+(v?" → "+v:"")
 }
 function saveCfg(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process"];
   // 收集当前可见标签页数据
   var curKey=groups[window._cfgTab];
+  if(curKey==="process"){document.getElementById("cfgMsg").textContent="进程管理无需保存";return}
   if(curKey==="autostart"){
     // 从开关收集
     var autoData={};
@@ -605,9 +644,9 @@ function render(){
   
   // Sub - 前台进程
   ud("s0",d.fg||"-");var _s0=document.getElementById("s0");if(_s0&&d.fg_pkg&&d.fg_pkg!=d.fg)_s0.title=d.fg_pkg;
-  // 设备、系统仅首次设置
-  if(d.md&&d.md!="-"&&!window._devSet){ud("s1",d.md);window._devSet=true}
-  if(d.av&&d.av!="-"&&!window._sysSet){ud("s2",d.av);window._sysSet=true}
+  // 设备、系统
+  ud("s1",d.md||"-");
+  ud("s2",d.av||"-");
   var _b=d.bt||"-";if(_b!="-"&&_b.endsWith("%"))animNum("s3",parseInt(_b),"%");else ud("s3",_b);
   // 运行时间：基于启动时间戳本地自动计算
   if(d.startup_ts&&!window._uptimeBase){window._uptimeBase={ts:d.startup_ts*1000}}

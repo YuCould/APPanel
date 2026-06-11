@@ -95,6 +95,24 @@ def register(app) -> None:
             pass
         return "", 500
 
+    @app.route("/api/kill", methods=["POST"])
+    def api_kill():
+        """通过 ADB kill 进程（PID 或包名）"""
+        from collectors.base import _adb
+        data = request.get_json(force=True)
+        pid = data.get("pid", "")
+        pkg = data.get("pkg", "")
+        results = []
+        if pkg:
+            r = _adb(f"am force-stop {pkg}", 5)
+            results.append(f"force-stop {pkg}: {'ok' if not r else r}")
+        if pid and pid.isdigit():
+            r = _adb(f"kill {pid}", 5)
+            results.append(f"kill {pid}: {'ok' if not r else r}")
+        if not results:
+            return jsonify({"status": "error", "message": "no pid or pkg provided"}), 400
+        return jsonify({"status": "ok", "results": results})
+
     @app.route("/mpegts.js")
     def mpegts_js():
         return "", 204
