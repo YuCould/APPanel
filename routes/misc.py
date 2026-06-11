@@ -46,17 +46,22 @@ def register(app) -> None:
     @app.route("/api/screen", methods=["GET", "POST"])
     def screen():
         """熄屏挂机：SurfaceControl.setDisplayPowerMode(物理屏token, mode)"""
-        from collectors.base import _adb
+        from collectors.base import _adb, _local
         from collectors.shared import _sd, _data_lock
         from collectors.ws import CACHE
         if request.method == "POST":
             action = request.get_json(force=True).get("action", "")
             if action == "off":
                 _adb("svc power stayon true", 3)
-                # 优先使用 SurfaceControl，失败则 fallback 到 dream mode (不锁频)
+                # 获取安卓版本，选择最佳熄屏方式
+                av = _local("getprop ro.build.version.sdk 2>/dev/null", 2) or ""
+                sdk = int(av) if av.isdigit() else 0
+                r = ""
+                # 1) 优先 dex（SurfaceControl，跨版本兼容）
                 r = _adb("app_process -Djava.class.path=/data/local/tmp/escrcpy.dex /data/local/tmp com.apanel.ScreenEscrcpy 0", 10)
-                if not r:
-                    _adb("cmd dream start", 3)
+                # 2) 无 dex 时，≥Android 8 用 dream start
+                if not r and sdk >= 26:
+                    r = _adb("cmd dream start", 3)
                 with _data_lock:
                     _sd["screen_on"] = False
                 CACHE["screen_on"] = False

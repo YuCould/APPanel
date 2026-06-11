@@ -264,6 +264,9 @@ document.body.addEventListener("click",function(e){
   if(t.classList.contains("btnKill")){
     killProc(t.getAttribute("data-pid"),t.getAttribute("data-pkg"));return
   }
+  // 进程表行点击复制
+  var row=t.closest(".procRow");
+  if(row){doCopy(row.getAttribute("data-cl")||"");return}
 });
 
 // 温度警告浮动提示（hover 显示）
@@ -795,8 +798,8 @@ function filesDelete(path,name){
 document.getElementById("sub1").innerHTML=
   '<div class=si style=width:100px><div class=k>运行中</div><div class=v id=s0 style=color:#58a6ff;overflow:hidden;text-overflow:ellipsis;max-width:100%>-</div></div>'+
   '<div class=si style=width:70px><div class=k>电量</div><div class=v id=s3 style=color:#4ade80>-</div></div>'+
-  '<div class=si id=si5 style=display:none;width:70px;position:relative><div class=k>CPU温度</div><div class=v id=s5 style=color:#ef4444>-</div></div>'+
-  '<div class=si id=si6 style=display:none;width:70px;position:relative><div class=k>电池温度</div><div class=v id=s6 style=color:#ef4444>-</div></div>';
+  '<div class=si id=si5 style=width:70px;position:relative><div class=k>CPU温度</div><div class=v id=s5 style=color:#ef4444>-</div></div>'+
+  '<div class=si id=si6 style=width:70px;position:relative><div class=k>电池温度</div><div class=v id=s6 style=color:#ef4444>-</div></div>';
 document.getElementById("sub2").innerHTML=
   '<div class=si style=width:150px><div class=k>设备</div><div class=v id=s1 style=color:#a78bfa>-</div></div>'+
   '<div class=si style=width:150px><div class=k>系统</div><div class=v id=s2 style=color:#7ecb8e>-</div></div>'+
@@ -842,8 +845,8 @@ function render(){
   // 运行时间：基于启动时间戳本地自动计算
   if(d.startup_ts&&!window._uptimeBase){window._uptimeBase={ts:d.startup_ts*1000}}
   if(window._uptimeBase){var _el=Math.floor((Date.now()-window._uptimeBase.ts)/1000);var _ts=_el%60;var _tm=Math.floor(_el/60)%60;var _th=Math.floor(_el/3600)%24;var _td=Math.floor(_el/86400)%7;var _tw=Math.floor(_el/604800);var _parts=[];if(_tw)_parts.push(_tw+"周");if(_td)_parts.push(_td+"天");if(_th||_parts.length)_parts.push(_th+"时");if(_tm||_parts.length)_parts.push(_tm+"分");_parts.push(_ts+"秒");document.getElementById("s4").textContent=_parts.join("")}
-  if(d.ct){var _m=d.ct.match(/^[\d.]+/);if(_m)animNum("s5",parseFloat(_m[0]),"°C",1);else document.getElementById("s5").textContent=d.ct;document.getElementById("si5").style.display="";var _cn=parseFloat(d.ct);document.getElementById("cpuFloat").style.display=_cn>70?"block":"none"}
-  if(d.btt){var _m=d.btt.match(/^[\d.]+/);if(_m)animNum("s6",parseFloat(_m[0]),"°C",1);else document.getElementById("s6").textContent=d.btt;document.getElementById("si6").style.display="";var _tn=parseFloat(d.btt);document.getElementById("btFloat").style.display=_tn>40?"block":"none"}
+  if(d.ct){var _m=d.ct.match(/^[\d.]+/);if(_m)animNum("s5",parseFloat(_m[0]),"°C",1);else ud("s5",d.ct);var _cn=parseFloat(d.ct);document.getElementById("cpuFloat").style.display=_cn>70?"block":"none"}
+  if(d.btt){var _m=d.btt.match(/^[\d.]+/);if(_m)animNum("s6",parseFloat(_m[0]),"°C",1);else ud("s6",d.btt);var _tn=parseFloat(d.btt);document.getElementById("btFloat").style.display=_tn>40?"block":"none"}
   
   // Left gauges
   if(d.cpu_raw!==undefined){animNum("cpu_v",Math.round(d.cpu_raw),"%");var _sub=document.getElementById("cpu_sub");if(_sub&&d.cpu_total!==undefined)_sub.textContent="总和 "+Math.round(d.cpu_total)+"%"}else ud("cpu_v","-");
@@ -867,7 +870,7 @@ function render(){
     for(var i=0;i<3&&i<memSorted.length;i++){
       var p=memSorted[i];
       mtl.innerHTML+='<div>'+e(p.m||'')+'</div>';
-      mt.innerHTML+='<div>'+(p.an?e(p.an):'-')+'</div>';
+      mt.innerHTML+='<div style=overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px>'+e(p.an?p.an:'-')+'</div>';
     }
   }
   
@@ -913,7 +916,7 @@ function render(){
   // 桌面端进程表 (innerHTML 批量更新)
   var _h='';
   for(var i=0;i<30;i++){
-    if(i<pr.length){var p=pr[i];_h+='<tr style=cursor:pointer onclick=\'doCopy(\"'+e(p.cl||'')+'\")\' title=\"点击复制: '+e(p.cl||'')+'\"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4>'+e(p.cl||'')+'</td></tr>'}
+    if(i<pr.length){var p=pr[i];_h+='<tr class=procRow data-cl="'+e(p.cl||'')+'" style=cursor:pointer title="点击复制: '+e(p.cl||'')+'"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4>'+e(p.cl||'')+'</td></tr>'}
     else{_h+='<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'}
   }
   document.getElementById("proc").innerHTML=_h;
@@ -922,7 +925,7 @@ function render(){
   if(mt&&document.getElementById("floatOverlay").style.display==="flex"){
     var _mh='';
     for(var i=0;i<30;i++){
-      if(i<pr.length){var p=pr[i];_mh+='<tr style=cursor:pointer onclick=\'doCopy(\"'+e(p.cl||'')+'\")\' title=\"点击复制: '+e(p.cl||'')+'\"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4>'+e(p.cl||'')+'</td></tr>'}
+      if(i<pr.length){var p=pr[i];_mh+='<tr class=procRow data-cl="'+e(p.cl||'')+'" style=cursor:pointer title="点击复制: '+e(p.cl||'')+'"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4>'+e(p.cl||'')+'</td></tr>'}
       else{_mh+='<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'}
     }
     mt.innerHTML=_mh;
