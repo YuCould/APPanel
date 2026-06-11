@@ -8,7 +8,7 @@ from .base import cmd, _try_local
 
 
 def collect(_bt_start: list) -> dict:
-    """采集电池电量和温度，超 50°C 半小时自动杀 AP"""
+    """采集电池电量和温度，超 50°C 15 分钟自动杀 AP 和碧蓝航线"""
     raw_output = _try_local("dumpsys battery 2>/dev/null", "dumpsys battery 2>/dev/null", 8)
     level_match = re.search(r"level:\s*(\d+)", raw_output)
     temp_match = re.search(r"temperature:\s*(\d+)", raw_output)
@@ -26,8 +26,8 @@ def collect(_bt_start: list) -> dict:
         if _bt_start[0] is None:
             _bt_start[0] = time.time()
             info(f"电池 {temp_str} 超 50°C，开始计时")
-        elif time.time() - _bt_start[0] >= 1800:
-            info(f"电池 {temp_str} 超 50°C 已达 30 分钟，执行保护")
+        elif time.time() - _bt_start[0] >= 900:
+            info(f"电池 {temp_str} 超 50°C 已达 15 分钟，执行保护")
             cmd(f'adb -s {ADB_ADDRESS} shell "am force-stop com.bilibili.azurlane"', 5)
             cmd("proot-distro login ubuntu -- pkill -f 'python.*gui.py' 2>/dev/null || true", 5)
             cmd("pkill -f start_ap.sh 2>/dev/null || true", 3)

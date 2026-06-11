@@ -80,6 +80,9 @@ def _init_lostat() -> None:
     LOSTAT["brand"] = _man_cn
     dn = _try_local("settings get global device_name 2>/dev/null",
                     "settings get global device_name 2>/dev/null", 5) or ""
+    # 过滤 ADB 错误信息
+    if dn and ("Failure" in dn or "Error" in dn or "exception" in dn.lower()):
+        dn = ""
     LOSTAT["dn"] = dn.strip() if dn.strip() else _model or "?"
     LOSTAT["av"] = f"Android {_local('getprop ro.build.version.release', 2) or '?'}"
     LOSTAT["cc"] = _local("ls -d /sys/devices/system/cpu/cpu[0-9]* 2>/dev/null|wc -l", 2) or _local("nproc", 2) or "?"

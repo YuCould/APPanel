@@ -84,6 +84,10 @@ def collect() -> dict:
                     app_name = "APPanel"
                 else:
                     app_name = _resolve_app_name(proc_name)
+                    # Python 子进程（带参数）显示为 py
+                    base = proc_name.split()[0] if proc_name else ""
+                    if app_name == "APPanel" and base in ("python", "python3") and len(proc_name.split()) > 1:
+                        app_name = "py"
                 processes.append({
                     "p": fields[0], "u": "?", "c": fields[1],
                     "m": rss_display, "mn": mem_mb,

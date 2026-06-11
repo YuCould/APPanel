@@ -45,14 +45,15 @@ def start_ws() -> None:
     loop.run_until_complete(ws_server())
 
 
-def _port_in_use(port: int) -> bool:
-    with _sk.socket(_sk.AF_INET, _sk.SOCK_STREAM) as s:
-        return s.connect_ex(("127.0.0.1", port)) == 0
-
-
 def run() -> None:
     port = FLASK_PORT
-    if _port_in_use(port):
+    # 先尝试绑定（含 SO_REUSEADDR 解决重启后 TIME_WAIT）
+    try:
+        with _sk.socket(_sk.AF_INET, _sk.SOCK_STREAM) as s:
+            s.setsockopt(_sk.SOL_SOCKET, _sk.SO_REUSEADDR, 1)
+            s.bind((HOST, port))
+            s.close()
+    except (OSError, PermissionError):
         port = FLASK_FALLBACK_PORT
     else:
         with _sk.socket(_sk.AF_INET, _sk.SOCK_STREAM) as s:

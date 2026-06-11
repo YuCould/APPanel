@@ -33,9 +33,13 @@ def register(app) -> None:
 
     @app.route("/api/restart", methods=["POST"])
     def restart():
+        import subprocess as _sp
         def _do():
             time.sleep(1)
-            os.execl(sys.executable, sys.executable, *sys.argv)
+            # 启动新进程，然后退出当前进程（比 os.execl 更可靠）
+            _sp.Popen([sys.executable] + sys.argv,
+                      stdin=_sp.DEVNULL, stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
+            os._exit(0)
         threading.Thread(target=_do, daemon=False).start()
         return jsonify({"status": "restarting"})
 
@@ -49,10 +53,10 @@ def register(app) -> None:
             action = request.get_json(force=True).get("action", "")
             if action == "off":
                 _adb("svc power stayon true", 3)
-                # 优先使用 SurfaceControl，失败则 fallback 到 KEYCODE_SLEEP (不锁频)
+                # 优先使用 SurfaceControl，失败则 fallback 到 dream mode (不锁频)
                 r = _adb("app_process -Djava.class.path=/data/local/tmp/escrcpy.dex /data/local/tmp com.apanel.ScreenEscrcpy 0", 10)
                 if not r:
-                    _adb("input keyevent 223", 3)
+                    _adb("cmd dream start", 3)
                 with _data_lock:
                     _sd["screen_on"] = False
                 CACHE["screen_on"] = False
@@ -146,7 +150,9 @@ def register(app) -> None:
             # 重启
             def _do():
                 time.sleep(2)
-                os.execl(sys.executable, sys.executable, *sys.argv)
+                _sp.Popen([sys.executable] + sys.argv,
+                          stdin=_sp.DEVNULL, stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
+                os._exit(0)
             threading.Thread(target=_do, daemon=False).start()
             return jsonify({"status": "ok", "message": "更新成功，正在重启…", "output": r.stdout.strip()})
         except Exception as e:

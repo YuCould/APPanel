@@ -267,20 +267,19 @@ document.body.addEventListener("click",function(e){
 });
 
 // 温度警告浮动提示（hover 显示）
-document.body.addEventListener("mouseover",function(e){
+document.body.addEventListener("mouseenter",function(e){
   var el=e.target.closest("#si5,#si6");
   if(!el)return;
   var isCpu=el.id==="si5";
   var f=document.getElementById(isCpu?"cpuFloat":"btFloat");
   if(f)f.style.display="block"
 });
-document.body.addEventListener("mouseout",function(e){
+document.body.addEventListener("mouseleave",function(e){
   var el=e.target.closest("#si5,#si6");
   if(!el)return;
   var isCpu=el.id==="si5";
   var f=document.getElementById(isCpu?"cpuFloat":"btFloat");
   if(f){
-    // 仅当温度低于阈值时才隐藏（高于阈值时 JS 已设为 block）
     var v=parseFloat(document.getElementById(isCpu?"s5":"s6")?.textContent||"0");
     var threshold=isCpu?70:40;
     if(v<=threshold)f.style.display="none"
@@ -444,7 +443,7 @@ function cfgRenderTable(){
 }
 function renderAutostart(){
   var data=window._cfgData.autostart||{};
-  var autolabels={sshd:"SSH 服务",dashboard:"APPanel 仪表盘",ap_backend:"AP 后端",auto_screen_off:"AP后端运行自动熄屏",kill_azurlane:"电池≥50°C杀碧蓝航线",kill_ap_hot:"电池≥50°C关闭AP进程",fix_adb_port:"自动固定ADB端口为5555"};
+  var autolabels={sshd:"SSH 服务",dashboard:"APPanel 仪表盘",ap_backend:"AP 后端",auto_screen_off:"AP后端运行自动熄屏",kill_azurlane:"电池≥50°C杀碧蓝航线 (持续15分钟)",kill_ap_hot:"电池≥50°C关闭AP进程 (持续15分钟)",fix_adb_port:"自动固定ADB端口为5555"};
   var keys=Object.keys(autolabels);
   var h='<div style=display:flex;flex-direction:column;gap:4px>';
   for(var i=0;i<keys.length;i++){
@@ -837,7 +836,7 @@ function render(){
   // Sub - 前台进程
   ud("s0",d.fg||"-");var _s0=document.getElementById("s0");if(_s0&&d.fg_pkg&&d.fg_pkg!=d.fg)_s0.title=d.fg_pkg;
   // 设备、系统
-  ud("s1",d.brand&&d.dn?d.brand+" "+d.dn:(d.md||"-"));
+  ud("s1",d.brand&&d.dn&&d.dn.indexOf("Failure")<0?d.brand+" "+d.dn:(d.md||"-"));
   ud("s2",d.av||"-");
   var _b=d.bt||"-";if(_b!="-"&&_b.endsWith("%"))animNum("s3",parseInt(_b),"%");else ud("s3",_b);
   // 运行时间：基于启动时间戳本地自动计算
@@ -881,9 +880,9 @@ function render(){
   ud("net_u",d.nt||"-");
   // 网络仪表盘左上角 IP
   var _ip4=document.getElementById("net_ip4");
-  if(_ip4){var ips=(d.ip||"").split("\n");_ip4.textContent=ips[0]||"-"}
+  if(_ip4){var ips=(d.ip||"").split("\n");var v4=ips[0];_ip4.textContent=(v4&&v4!="?"&&v4!="-")?v4:"-"}
   var _ip6=document.getElementById("net_ip6");
-  if(_ip6){var ips6=(d.ip6||"").split("\n");_ip6.textContent="IPv6: "+(ips6[0]||"-")}
+  if(_ip6){var ips6=(d.ip6||"").split("\n");var v6=ips6[0];_ip6.textContent="IPv6: "+((v6&&v6!="?"&&v6!="-")?v6:"-")}
   // 总流量统计
   function _fb2(x){if(x>=1073741824)return(x/1073741824).toFixed(1)+"GB";if(x>=1048576)return(x/1048576).toFixed(1)+"MB";if(x>=1024)return(x/1024).toFixed(1)+"KB";return x+"B"}
   ud("net_total_dl",d.net_rx_total!==undefined?"下载 "+_fb2(d.net_rx_total):"");

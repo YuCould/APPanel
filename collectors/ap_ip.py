@@ -23,7 +23,7 @@ def collect() -> dict:
         ap_socket.close()
     result["ap_available"] = _ap_ever_online
     result["ip"] = cmd(r"netstat -ie 2>/dev/null|grep -A1 wlan0|grep -oE 'inet [0-9.]+|inet6 [0-9a-f:]+'|awk '{print $2}'|head -3", 3) or "?"
-    result["ip6"] = cmd(r"netstat -ie 2>/dev/null|grep -A1 wlan0|grep -oE 'inet6 [0-9a-f:]+'|awk '{print $2}'|head -2", 3) or "?"
+    result["ip6"] = cmd(r"netstat -ie 2>/dev/null|grep -A1 wlan0|grep -oE 'inet6 [0-9a-f:]+'|awk '{print $2}'|head -2", 3) or ""
     uptime_raw = cmd("uptime -p", 3) or "?"
     uptime_raw = uptime_raw.replace(",", "")
     uptime_match = re.search(r"up\s*(?:(\d+)\s+weeks?\s*)?(?:(\d+)\s+days?\s*)?(?:(\d+)\s+hours?\s*)?(?:(\d+)\s+minutes?\s*)?(?:(\d+)\s+seconds?\s*)?", uptime_raw)
