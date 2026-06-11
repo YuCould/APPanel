@@ -25,6 +25,15 @@ def collect_model() -> dict:
     if chip_match:
         chip_id = chip_match.group(1).lower().replace(" ", "")
     chip_name = _CPU_MAP["chips"].get(chip_id)
+    # 尝试匹配 cpu_raw 中的每个单词（如 "KONA" → "kona"）
+    if not chip_name:
+        for word in cpu_raw.split():
+            w = word.lower().strip(",:;.()")
+            if w and len(w) >= 2:
+                chip_name = _CPU_MAP["chips"].get(w)
+                if chip_name:
+                    chip_id = w
+                    break
     if not chip_name and len(chip_id) > 6:
         chip_name = _CPU_MAP["chips"].get(chip_id[:6])
     if not chip_name and len(chip_id) > 5:

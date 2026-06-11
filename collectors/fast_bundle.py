@@ -31,6 +31,13 @@ def collect(cpu_prev: list, net_state: dict) -> dict:
     net_match = re.search(r'wlan0:\s*(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)', net_line)
     if net_match:
         net_rx, net_tx = int(net_match.group(1)), int(net_match.group(2))
+        # 首次记录初始值
+        if net_state.get("rx0") is None:
+            net_state["rx0"] = net_rx
+            net_state["tx0"] = net_tx
+        # 总流量（自启动以来的累计）
+        result["net_rx_total"] = net_rx - net_state["rx0"]
+        result["net_tx_total"] = net_tx - net_state["tx0"]
         if net_state["t"] > 0 and net_rx > 0:
             elapsed = now - net_state["t"]
             if elapsed > 0.5:

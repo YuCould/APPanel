@@ -349,18 +349,19 @@ function cfgRenderSide(){
     var cnt=Object.keys(window._cfgData[k]||{}).length;
     var active=i===window._cfgTab?"var(--th-on)":"transparent";
     var tc=i===window._cfgTab?"var(--bg)":"var(--fg)";
-    h+='<div id=cfgSide_'+k+' onclick=cfgSelectTab("'+k+'") style="padding:4px 6px;border-radius:4px;cursor:pointer;background:'+active+';color:'+tc+';transition:all .15s">'+labels[k]+' <span style=font-size:10px;opacity:.6>('+cnt+')</span></div>'
+    var noCnt=["process","version","ports","restart"];
+    h+='<div id=cfgSide_'+k+' onclick=cfgSelectTab("'+k+'") style="padding:4px 6px;border-radius:4px;cursor:pointer;background:'+active+';color:'+tc+';transition:all .15s">'+labels[k]+(noCnt.indexOf(k)<0?' <span style=font-size:10px;opacity:.6>('+cnt+')</span>':'')+'</div>'
   }
   document.getElementById("cfgSide").innerHTML=h
 }
 function cfgSelectTab(key){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports","restart"];
   window._cfgTab=groups.indexOf(key);
   cfgRenderSide();
   cfgRenderTable()
 }
 function cfgRenderTable(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports","restart"];
   var key=groups[window._cfgTab];
   if(key==="process"){
     renderProcess();return
@@ -370,6 +371,9 @@ function cfgRenderTable(){
   }
   if(key==="ports"){
     renderPorts();return
+  }
+  if(key==="restart"){
+    renderRestart();return
   }
   var data=window._cfgData[key]||{};
   var keys=Object.keys(data);
@@ -445,7 +449,11 @@ function killProc(pid,pkg){
     .then(function(r){return r.json()})
     .then(function(d){
       document.getElementById("cfgMsg").textContent=d.results?d.results.join("; "):(d.message||"kill 完成");
-      if(d.status==="ok")setTimeout(renderProcess,2000)
+      if(d.status==="ok"){
+        // 立即刷新一次，后续等 WebSocket 推送自动更新
+        renderProcess();
+        document.getElementById("cfgMsg").textContent+="，列表将在数秒内自动更新"
+      }
     }).catch(function(e){document.getElementById("cfgMsg").textContent="请求失败: "+e})
 }
 function renderVersion(){
@@ -516,9 +524,9 @@ function renderPorts(){
   h+='<div style="padding:10px 12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px">';
   h+='<div style=font-size:11px;color:var(--p3);margin-bottom:8px>🔌 APPanel 端口</div>';
   h+='<div style=display:flex;flex-direction:column;gap:6px>';
-  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>Flask 端口</span><input id=portFlask type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
+  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>Flask(web) 端口</span><input id=portFlask type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
   h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>WebSocket 端口</span><input id=portWs type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
-  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>AP 后端端口</span><input id=portAp type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
+  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>AP(ALAS) 端口</span><input id=portAp type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
   h+='<div style=font-size:11px;color:var(--p3);margin-top:4px>留空则使用默认值（Flask:80, WS:5001, AP:22267）</div>';
   h+='<div style=font-size:11px;color:#facc15;margin-top:2px>⚠️ 修改后需重启 APPanel 才能生效</div>';
   h+='</div></div>';
@@ -546,6 +554,31 @@ function savePorts(){
     document.getElementById("cfgMsg").textContent=d.message||(d.status==="ok"?"已保存":"保存失败");
   }).catch(function(e){document.getElementById("cfgMsg").textContent="保存失败: "+e})
 }
+function renderRestart(){
+  var h='<div style=display:flex;flex-direction:column;gap:12px;padding:10px;font-size:13px;align-items:center>';
+  h+='<div style="padding:20px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;text-align:center;width:100%">';
+  h+='<div style=font-size:40px;margin-bottom:12px>🔄</div>';
+  h+='<div style=font-size:15px;font-weight:600;color:var(--fg);margin-bottom:6px>重启 APPanel</div>';
+  h+='<div style=font-size:12px;color:var(--p3);margin-bottom:16px>重启后页面将自动重连</div>';
+  h+='<button onclick=\'doRestart()\' style="background:#ef4444;border:none;color:#fff;padding:10px 32px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700">确认重启</button>';
+  h+='</div></div>';
+  document.getElementById("cfgBody").innerHTML=h;
+  document.getElementById("btnQuickAdd").style.display="none"
+}
+function doRestart(){
+  if(!confirm("确定要重启 APPanel 吗？"))return;
+  var btn=document.querySelector("#cfgBody button");
+  btn.textContent="⏳ 正在重启...";
+  btn.disabled=true;
+  fetch("/api/restart",{method:"POST"}).then(function(r){return r.json()}).then(function(d){
+    document.getElementById("cfgMsg").textContent="正在重启，页面将在几秒后重连...";
+    setTimeout(function(){location.reload()},3000)
+  }).catch(function(e){
+    document.getElementById("cfgMsg").textContent="重启请求失败: "+e;
+    btn.textContent="确认重启";
+    btn.disabled=false
+  })
+}
 function cfgAddRow(){
   var tbl=document.querySelector("#cfgBody table");
   if(!tbl){document.getElementById("cfgMsg").textContent="\u8BF7\u5148\u9009\u62E9\u4E00\u4E2A\u5206\u7C7B";return}
@@ -554,7 +587,7 @@ function cfgAddRow(){
   tbl.appendChild(tr)
 }
 function cfgQuickAdd(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports","restart"];
   var key=groups[window._cfgTab];
   var k,v,label;
   if(key==="packages"){k=_cache.fg_pkg;v=_cache.fg;label="包名"}
@@ -574,10 +607,10 @@ function cfgQuickAdd(){
   document.getElementById("cfgMsg").textContent="已添加: "+k+(v?" → "+v:"")
 }
 function saveCfg(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports"];
+  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports","restart"];
   // 收集当前可见标签页数据
   var curKey=groups[window._cfgTab];
-  if(curKey==="process"||curKey==="version"){document.getElementById("cfgMsg").textContent="该页面无需保存";return}
+  if(curKey==="process"||curKey==="version"||curKey==="restart"){document.getElementById("cfgMsg").textContent="该页面无需保存";return}
   if(curKey==="ports"){savePorts();return}
   if(curKey==="autostart"){
     // 从开关收集
@@ -722,10 +755,10 @@ document.getElementById("right").innerHTML=
   '<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'.repeat(30)+
   '</tbody></table></div>';
 document.getElementById("left").innerHTML=
-  '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>CPU</div><div class=gr><div class=gn id=cpu_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=cpu_f style=width:1%></div></div><div class=gd id=cpu_d></div><div id=cf_small style=position:absolute;top:4px;left:4px;font-size:10px;color:var(--p3);opacity:.6></div><div id=cf_big style=position:absolute;top:4px;left:46px;font-size:10px;color:var(--p3);opacity:.6></div><div id=cpu_sub style=position:absolute;top:4px;right:6px;font-size:10px;color:var(--p3);opacity:.6></div></div>'+
-  '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>\u5185\u5b58</div><div class=gr><div class=gn id=mem_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=mem_f style=width:1%></div></div><div class=gd id=mem_d></div><div id=mem_top style=position:absolute;bottom:6px;left:6px;right:6px;font-size:10px;color:var(--p3);opacity:.6;display:flex;flex-direction:column;gap:1px></div></div>'+
-  '<div class=g style=flex:.7;padding:4px 6px><div class=l style=font-size:18px>\u5b58\u50a8</div><div class=gr><div class=gn id=sto_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=sto_f style=width:1%></div></div><div class=gd id=sto_d></div></div>'+
-  '<div class=g style=flex:1.5;gap:2px;position:relative><div class=l>\u7f51\u7edc</div><div class=g2><div><div class=gn id=net_d style=color:#a78bfa;font-size:13px>-</div><div class=gd>\u4e0b\u8f7d</div></div><div><div class=gn id=net_u style=color:#ef4444;font-size:13px>-</div><div class=gd>\u4e0a\u4f20</div></div></div><canvas id=netChart width=180 height=60 style=width:100%;height:60px;border-radius:4px></canvas><div id=net_ip style=position:absolute;top:2px;left:4px;font-size:9px;color:var(--p3);opacity:.6;line-height:1.3></div></div>';
+  '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>CPU</div><div class=gr><div class=gn id=cpu_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=cpu_f style=width:1%></div></div><div class=gd id=cpu_d></div><div id=cf_big style=position:absolute;top:4px;left:4px;font-size:10px;color:var(--p3);opacity:.6></div><div id=cf_small style=position:absolute;top:18px;left:4px;font-size:10px;color:var(--p3);opacity:.6></div><div id=cpu_sub style=position:absolute;top:4px;right:6px;font-size:10px;color:var(--p3);opacity:.6></div></div>'+
+  '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>\u5185\u5b58</div><div class=gr><div class=gn id=mem_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=mem_f style=width:1%></div></div><div class=gd id=mem_d></div><div id=mem_top style=position:absolute;top:4px;right:6px;font-size:10px;color:var(--p3);opacity:.6;text-align:right;line-height:1.4></div><div id=mem_top_left style=position:absolute;top:4px;left:4px;font-size:10px;color:var(--p3);opacity:.6;line-height:1.4></div></div>'+
+  '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>\u5b58\u50a8</div><div class=gr><div class=gn id=sto_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=sto_f style=width:1%></div></div><div class=gd id=sto_d></div><div id=sto_project style=position:absolute;top:4px;left:4px;font-size:10px;color:var(--p3);opacity:.6></div></div>'+
+  '<div class=g style=flex:1.5;gap:2px;position:relative><div class=l>\u7f51\u7edc</div><div class=g2><div><div class=gn id=net_d style=color:#a78bfa;font-size:13px>-</div><div class=gd>\u4e0b\u8f7d</div></div><div><div class=gn id=net_u style=color:#ef4444;font-size:13px>-</div><div class=gd>\u4e0a\u4f20</div></div></div><canvas id=netChart width=180 height=60 style=width:100%;height:60px;border-radius:4px></canvas><div id=net_ip4 style=position:absolute;top:2px;left:4px;font-size:9px;color:var(--p3);opacity:.6;line-height:1.3></div><div id=net_ip6 style=position:absolute;top:14px;left:4px;font-size:9px;color:var(--p3);opacity:.6;line-height:1.3></div><div id=net_total_dl style=position:absolute;bottom:4px;left:6px;font-size:9px;color:var(--p3);opacity:.6></div><div id=net_total_ul style=position:absolute;bottom:4px;right:6px;font-size:9px;color:var(--p3);opacity:.6></div></div>';
 
 // 自定义浮动滚动条
 function initScroll(containerId, barId, thumbId){
@@ -773,23 +806,34 @@ function render(){
   var m=document.getElementById("mem_f");if(m){m.style.width=Math.min(d.mp||0,100)+"%"}
   // 内存占用 TOP3（按内存排序）
   var mt=document.getElementById("mem_top");
-  if(mt&&d.pr){
+  var mtl=document.getElementById("mem_top_left");
+  if(mt&&mtl&&d.pr){
     var memSorted=JSON.parse(JSON.stringify(d.pr)).sort(function(a,b){return (b.mn||0)-(a.mn||0)});
     mt.innerHTML='';
+    mtl.innerHTML='';
     for(var i=0;i<3&&i<memSorted.length;i++){
       var p=memSorted[i];
-      mt.innerHTML+='<div style=display:flex;justify-content:space-between><span>'+e(p.m||'')+'</span><span style=overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;max-width:60%>'+(p.an?e(p.an):'-')+'</span></div>';
+      mtl.innerHTML+='<div>'+e(p.m||'')+'</div>';
+      mt.innerHTML+='<div>'+(p.an?e(p.an):'-')+'</div>';
     }
   }
   
   if(d.sp!==undefined)animNum("sto_v",d.sp,"%");else ud("sto_v","-");
   ud("sto_d",d.su?d.su+" / "+d.st:"-");
   var s=document.getElementById("sto_f");if(s){s.style.width=Math.min(d.sp||0,100)+"%"}
+  ud("sto_project",d.project_size?"项目 "+d.project_size:"");
   
   ud("net_d",d.nr||"-");
   ud("net_u",d.nt||"-");
-  // 网络仪表盘左上角显示 IP
-  var _nip=document.getElementById("net_ip");if(_nip){_nip.textContent=d.ip||"";if(d.ip6)_nip.textContent+=" | "+d.ip6}
+  // 网络仪表盘左上角 IP
+  var _ip4=document.getElementById("net_ip4");
+  if(_ip4){var ips=(d.ip||"").split("\n");_ip4.textContent=ips[0]||"-"}
+  var _ip6=document.getElementById("net_ip6");
+  if(_ip6){var ips6=(d.ip6||"").split("\n");_ip6.textContent="IPv6: "+(ips6[0]||"-")}
+  // 总流量统计
+  function _fb2(x){if(x>=1073741824)return(x/1073741824).toFixed(1)+"GB";if(x>=1048576)return(x/1048576).toFixed(1)+"MB";if(x>=1024)return(x/1024).toFixed(1)+"KB";return x+"B"}
+  ud("net_total_dl",d.net_rx_total!==undefined?"\u4e0b\u8f7d "+_fb2(d.net_rx_total):"");
+  ud("net_total_ul",d.net_tx_total!==undefined?"\u4e0a\u4f20 "+_fb2(d.net_tx_total):"");
   
   // AP 后端存活
   checkD();
