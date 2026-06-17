@@ -8,11 +8,6 @@ from .shared import _ap_ever_online
 
 
 def _ip() -> dict:
-
-
-
-
-def _ip() -> dict:
     """采集 IP 地址（从 getprop 读取，兼容所有环境）"""
     r = {"ip": "?", "ip6": ""}
     # 通过 ADB 读取 wlan0 地址（Android 原生命令，PATH 可靠）

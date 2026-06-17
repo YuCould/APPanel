@@ -10,4 +10,3 @@ from .base import cmd, _start_thread
 from .runner import start as start_collectors
 from .ws import CACHE, WS_CLIENTS, ws_broadcast
 from . import adb_shell, fast_bundle, battery, temperature, memory, storage, ap_ip, processes, cpu, broadcast, ws
-from .runner import start as start_collectors
