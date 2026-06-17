@@ -4,13 +4,13 @@
 import json, time
 from logger import info
 from config import ADB_ADDRESS
-from .base import _local, _adb, _try_local, _start_thread, cmd
+from .base import _local, _adb, _local_fast, _adb_fast, _local_freq, _adb_freq, _local_mem, _adb_mem, _local_proc, _adb_proc, _local_medium, _adb_medium, _local_slow, _adb_slow, _local_ap, _adb_ap, _try_local, _start_thread, cmd
 from .shared import LOSTAT, _CPU_MAP, _CPU_MAP_PATH, _sd, _auto_save_settings
-from . import broadcast, fast_bundle, battery, temperature, memory, storage, ap_ip, processes, cpu
+from . import adb_shell, broadcast, fast_bundle, battery, temperature, memory, storage, ap_ip, processes, cpu, hot_protect
 
 
 def start() -> None:
-    """启动多个独立采集线程，充分利用多核"""
+    """启动持久 shell + 多个独立采集线程"""
     global _sd
     _startup_ts = time.time()
     _sd["startup_ts"] = _startup_ts
@@ -24,42 +24,61 @@ def start() -> None:
             _f.truncate()
     except (OSError, json.JSONDecodeError):
         pass
+
+    # ── 启动持久 ADB shell ──
     cmd(f"adb connect {ADB_ADDRESS}", 5)
-    cmd(f"adb -s {ADB_ADDRESS} shell 'echo ADB_READY'", 5)
+    adb_shell.start()
+    # 验证 ADB shell 可用
+    _adb("echo ADB_READY", 5)
+    info("持久 ADB shell 就绪")
 
     # ── 一次性初始化（LOSTAT）──
     if LOSTAT["md"] == "?":
         _init_lostat()
     _sd.update(LOSTAT)
 
-    # ── 共享状态 ──
-    cpu_prev = [None]
-    net_state = {"rx": 0, "tx": 0, "t": 0}
-    _bt_start = [None]
+    # ── 各通道采集速度倍率 ──
+    _speeds = _CPU_MAP.get("collect_speeds", {})
+    _speed_map = {
+        "fast":   max(0.1, float(_speeds.get("fast", 1.0))),
+        "freq":   max(0.1, float(_speeds.get("fast", 1.0))),
+        "mem":    max(0.1, float(_speeds.get("fast", 1.0))),
+        "proc":   max(0.1, float(_speeds.get("fast", 1.0))),
+        "medium": max(0.1, float(_speeds.get("medium", 1.0))),
+        "slow":   max(0.1, float(_speeds.get("slow", 1.0))),
+        "ap":     max(0.1, float(_speeds.get("slow", 1.0))),
+    }
+    info(f"采集速度倍率: fast={_speed_map['fast']}x medium={_speed_map['medium']}x slow={_speed_map['slow']}x")
 
-    _start_thread(0.1, lambda: None, "dummy")
-
-    # ── 采集器配置列表: (间隔秒, 函数, 名称, 偏移秒) ──
-    _COLLECTORS = [
-        (2,  lambda: fast_bundle.collect(cpu_prev, net_state), "fast", 0.0),
-        (2,  cpu.collect_freq,                                  "freq", 0.8),
-        (10, lambda: battery.collect(_bt_start),                "battery", 0.2),
-        (10, temperature.collect,                               "temp", 2.5),
-        (10, memory.collect,                                    "mem", 5.0),
-        (30, storage.collect,                                   "storage", 3.0),
-        (10, ap_ip.collect,                                     "ap", 1.5),
-        (10, processes.collect,                                 "proc", 4.0),
-        (60, cpu.collect_model,                                 "model", 7.0),
-        (30, lambda: _auto_save_settings() or {},               "autosave", 15.0),
+    # ── 采集器配置列表: (基础间隔秒, 函数, 名称, 偏移秒, 通道) ──
+    # 实际间隔 = 基础间隔 * 对应通道的速度倍率
+    _BASE_COLLECTORS = [
+        # ── 各通道独立，消除锁竞争 ──
+        (2,  fast_bundle.collect,                                "cpu+net", 0.0,  "fast"),
+        (2,  cpu.collect_freq,                                   "freq",    0.8,  "freq"),
+        (2,  memory.collect,                                     "mem",     5.0,  "mem"),
+        (2,  processes.collect,                                  "proc",    4.0,  "proc"),
+        # ── 中速（medium 通道）──
+        (10, battery.collect,                                    "battery", 0.2,  "medium"),
+        (10, temperature.collect,                                "temp",    2.5,  "medium"),
+        # ── 慢速（slow/ap 通道）──
+        (30, storage.collect,                                    "storage", 3.0,  "slow"),
+        (10, ap_ip.collect,                                      "ap",      1.5,  "ap"),
+        (60, cpu.collect_model,                                  "model",   7.0,  "ap"),
+        (30, lambda: _auto_save_settings() or {},                "autosave",15.0, "ap"),
     ]
 
-    for interval, fn, name, offset in _COLLECTORS:
-        _start_thread(interval, fn, name, offset)
+    for base_interval, fn, name, offset, ch in _BASE_COLLECTORS:
+        adjusted = base_interval * _speed_map.get(ch, 1.0)
+        _start_thread(adjusted, fn, name, offset)
 
     # ── 广播线程 ──
     broadcast.start()
 
-    info(f"{len(_COLLECTORS)} 个采集线程 + 1 个广播线程已启动")
+    # ── 高温保护（后端常驻，无需自启动）──
+    hot_protect.start()
+
+    info(f"{len(_BASE_COLLECTORS)} 个采集线程 + 1 个广播线程已启动")
 
 
 def _init_lostat() -> None:

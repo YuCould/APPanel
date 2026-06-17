@@ -1,22 +1,26 @@
-#!/usr/bin/env python3
+#./,/r,,,n/env py.,.n3,,,.,.,..,./,,,,..,..,,,,...
 # -*- coding: utf-8 -*-
 """
 APPanel 全局配置
-所有硬编码地址、端口集中管理，一处修改全局生效。
-端口值可通过 port_config.json 覆盖（设置页面编辑后无需改此文件）。
+端口值从 settings.json 读取（Web 页面编辑保存）。
 """
 import os, json
 
-_PORT_CFG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "port_config.json")
+_SETTINGS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "settings.json")
 
 def _load_port_overrides() -> dict:
+    overrides = {}
     try:
-        if os.path.exists(_PORT_CFG_PATH):
-            with open(_PORT_CFG_PATH, encoding="utf-8") as f:
-                return json.load(f)
+        if os.path.exists(_SETTINGS_PATH):
+            with open(_SETTINGS_PATH, encoding="utf-8") as f:
+                data = json.load(f)
+            for k in ("flask_port", "ws_port", "ap_port", "adb_port", "screen_port"):
+                v = data.get(k)
+                if v is not None:
+                    overrides[k] = v
     except Exception:
         pass
-    return {}
+    return overrides
 
 _port_overrides = _load_port_overrides()
 

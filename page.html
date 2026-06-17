@@ -5,10 +5,10 @@
 <meta name=viewport content="width=device-width,initial-scale=1">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 <title>APPanel</title>
+<!-- ═══════════ STYLE ═══════════ -->
 <style>
 :root{--bg:#1c1e26;--fg:#cdd3de;--card-bg:rgba(36,40,54,.78);--border:#7a7a8a;--title:#7ab8ff;--btn-bg:#2c2f3a;--btn-fg:#cdd3de;--sub-k:#9aa2b0;--l-color:#e8ecf4;--gb-bg:#2c2f3a;--gb-border:#b0b0b8;--gd-color:#9aa2b0;--th-btn-border:#3c3f4a;--th-btn-fg:#9aa2b0;--th-on:#7ab8ff;--scroll-thumb:#3c3f4a;--tr-hover:rgba(255,255,255,.04);--p0:#7a7a8a;--p1:#6ec6e8;--p2:#8ed8a0;--p3:#9aa2b0}
 .light{--bg:#ffffff;--fg:#1f2328;--card-bg:rgba(246,248,250,.75);--border:#d0d7de;--title:#0969da;--btn-bg:#e8eaed;--btn-fg:#1f2328;--sub-k:#656d76;--l-color:#1f2328;--gb-bg:#e8eaed;--gb-border:#d0d7de;--gd-color:#656d76;--th-btn-border:#d0d7de;--th-btn-fg:#656d76;--th-on:#0969da;--scroll-thumb:#d0d7de;--tr-hover:rgba(0,0,0,.03);--p0:#6e7781;--p1:#0969da;--p2:#1a7f37;--p3:#656d76}
-.colorful{--bg:#f8f6ff;--fg:#2d2b3a;--card-bg:linear-gradient(135deg,rgba(255,200,200,.4),rgba(255,255,180,.35),rgba(180,255,200,.35),rgba(180,220,255,.35),rgba(220,180,255,.4));--border:rgba(120,100,180,.25);--title:#e05060;--btn-bg:rgba(255,255,255,.7);--btn-fg:#2d2b3a;--sub-k:#706a8a;--l-color:#2d2b3a;--gb-bg:rgba(255,255,255,.6);--gb-border:rgba(120,100,180,.3);--gd-color:#706a8a;--th-btn-border:rgba(120,100,180,.3);--th-btn-fg:#706a8a;--th-on:#d04070;--scroll-thumb:rgba(120,100,180,.25);--tr-hover:rgba(120,100,180,.08);--p0:#706a8a;--p1:#d04070;--p2:#30a060;--p3:#706a8a}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;user-select:none;-webkit-user-select:none}
@@ -69,7 +69,7 @@ body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);displ
 .p4 .cpText{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
 .p4 .cpBtn{flex:none;cursor:pointer;font-size:10px;opacity:.4;padding:0 2px;transition:opacity .15s}
 .p4 .cpBtn:hover{opacity:1}
-#floatOverlay,#cfgOverlay,#filesOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:8px}
+#floatOverlay,#cfgOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:8px}
 
 /* 移动端布局 */
 @media(max-width:768px){
@@ -79,8 +79,10 @@ body{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:
 .hdr h1{font-size:13px;line-height:1.2;display:none}
 .hdr .btns{display:none}
 .sub-w{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:4px;min-height:0}
-.sub{display:flex;flex-direction:column;gap:1px;padding:3px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);overflow-y:auto;height:auto;min-height:0;flex:1}
+.sub{display:flex;flex-direction:column;gap:1px;padding:3px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);overflow-y:auto;height:auto;min-height:0}
 .sub-w>.sub{max-width:none}
+#sub1{flex:4}
+#sub2{flex:3}
 .si{padding:2px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex:1;width:100%!important;min-height:0}
 .si .k{font-size:10px;font-weight:700;color:var(--fg);line-height:1.4}
 .si .v{font-size:12px;text-align:center;line-height:1.4}
@@ -100,8 +102,8 @@ body{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:
 .bmb .danger{animation:dangerBreath 1.2s ease-in-out infinite;border-color:#ef4444;color:#ef4444}
 .bmb .scroff{border-color:#facc15;color:#facc15}
 .bmb .active{border-color:var(--title);color:var(--title)}
-#floatOverlay,#cfgOverlay,#filesOverlay{padding:4px}
-#fc1,#fc2,#fc3{width:100%!important;height:92%!important}
+#floatOverlay,#cfgOverlay{padding:4px}
+#fc1,#fc2{width:100%!important;height:92%!important}
 }
 .cfg-tbl{width:100%;border-collapse:collapse;font-size:12px}
 .t-float{display:none;position:absolute;top:56px;left:4px;z-index:100;background:var(--bg);border:1px solid #ef4444;border-radius:6px;padding:6px 12px;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25);font-size:12px;line-height:1.5;pointer-events:none}
@@ -120,6 +122,7 @@ body{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:
 .f-scroll .thumb:hover{background:var(--p3);transform:scaleX(1.4);box-shadow:0 0 10px rgba(0,0,0,.2)}
 .f-scroll .thumb:active{background:var(--title);transform:scaleX(1.6);box-shadow:0 0 14px rgba(0,0,0,.3)}
 </style>
+<!-- ═══════════ HTML ═══════════ -->
 </head>
 <body>
 
@@ -127,7 +130,7 @@ body{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:
 <div class=hdr>
 <h1 id=title style=cursor:pointer;user-select:none title="点击修改标题">APPanel-仪表盘</h1>
 <div class=btns>
-<button id=btnTheme style=width:80px;height:25px;font-size:13px;font-weight:700>&#9728;&#65039; &#27973;&#33394;</button><button id=btnCfg style=width:60px;height:25px;font-size:12px>设置</button><button id=btnFiles style=width:60px;height:25px;font-size:12px>文件</button><button id=btnWeb style=width:100px;height:25px>访问web端</button><button id=btnD style=width:80px;height:25px;cursor:default>后端</button><button id=btnScreen style=width:70px;height:25px;font-size:12px>熄屏</button>
+<button id=btnTheme style=width:80px;height:25px;font-size:13px;font-weight:700>&#9728;&#65039; &#27973;&#33394;</button><button id=btnCfg style=width:60px;height:25px;font-size:12px>设置</button><button id=btnAP style=width:120px;height:25px;font-size:12px>访问AzurPilot</button><button id=btnScreen style=width:100px;height:25px;font-size:12px>访问息屏服务</button>
 </div>
 </div>
 <div class=sub-w style=position:relative>
@@ -184,56 +187,43 @@ body{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:
 </div>
 </div>
 
-<div id=filesOverlay>
-<div id=fc3 style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;overflow:hidden;width:680px;height:520px;box-shadow:0 8px 32px rgba(0,0,0,.3)">
-<div style="display:flex;align-items:center;padding:8px 10px;background:var(--btn-bg);border-bottom:1px solid var(--border);flex-shrink:0">
-<span style="font-size:14px;margin-right:8px;opacity:.6">&#128193;</span><span style="font-size:13px;font-weight:600;color:var(--fg);flex:1">文件浏览器</span><button id=btnFilesClose style="background:none;border:none;color:var(--p3);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>
-</div>
-<div style="flex:1;padding:8px;display:flex;flex-direction:column;min-height:0;overflow:hidden;gap:4px">
-<div style=display:flex;gap:4px;align-items:center;flex-shrink:0>
-<span id=filesCwd style=font-size:12px;color:var(--p3);flex:1></span>
-<label style="background:var(--btn-bg);border:1px solid var(--border);color:var(--btn-fg);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px">上传<input type=file id=filesUploadInput style=display:none></label>
-<button id=btnFilesMkdir style="background:var(--btn-bg);border:1px dashed var(--border);color:var(--th-on);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">+ 新建</button>
-<button id=btnUnlock style="background:var(--btn-bg);border:1px solid var(--border);color:var(--btn-fg);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px">🔒 解锁</button>
-</div>
-<div style="flex:1;min-height:0;position:relative;overflow:hidden;display:flex;flex-direction:column">
-<div id=filesTopBar style="display:none;height:40px;line-height:34px;padding:3px 6px;border-bottom:1px solid var(--title);background:var(--card-bg);font-size:12px;cursor:pointer;flex-shrink:0;align-items:center">
-<span>🔗 downloads</span><span style=flex:1></span><span style=color:var(--p3);font-size:11px;padding:0 1px;margin:0 5px;opacity:.4>点击此处可以访问设备Downloads文件夹</span>
-</div>
-<div id=filesBody class=scroll-hide style="overflow-y:auto;font-size:12px;flex:1;min-height:0"></div>
-<div class="f-scroll" id=filesBodyBar><div class=track><div class=thumb id=filesBodyThumb></div></div></div>
-</div>
-<div id=filesMsg style=font-size:11px;min-height:16px></div>
-</div>
-</div>
-</div>
-
+<!-- ═══════════ SCRIPT ═══════════ -->
 <script>
-var _cache={},_ws=null,_ready=false, _so=0, _netHistory=[], _netMax=180, _dOk=false, _netLoop=0, _netInterp={from:{rx:0,tx:0},to:{rx:0,tx:0},t0:0,dur:500};
-
-function restartDash(){
-  var b=document.getElementById("btnC");
-  b.textContent="重启中...";b.className="";
-  fetch("/api/restart",{method:"POST"}).then(function(){
-    setTimeout(function(){location.reload()},3000)
-  }).catch(function(){
-    setTimeout(function(){location.reload()},3000)
-  })
-}
+var _cache={},_ws=null,_ready=false, _so=1, _soDir=1, _netHistory=[], _netMax=180, _dOk=false, _netLoop=0, _netInterp={from:{rx:0,tx:0},to:{rx:0,tx:0},t0:0,dur:500};
+// CPU jiffies 状态（前端计算占用率）
+var _cpuPrev=null; // {raw, total, idle}
+var _procCache={raw:"",list:[]}; // 进程列表缓存，仅 ps_raw 变化时重解析
+var _procDirty=false; // 数据变更标记，触发 HTML 重建
+var _procHtmlCache={html:"",sortKey:""}; // 进程表 HTML 缓存，避免每帧重建 DOM
+var _lastSortKey=""; // 上一次排序键
+var _renderTimer=null; // render 防抖定时器
+function _debouncedRender(){if(_renderTimer)clearTimeout(_renderTimer);_renderTimer=setTimeout(function(){_renderTimer=null;render()},50)}
+// 网络状态（前端计算速率和总量）
+var _netState={rx:0,tx:0,t:0};
+var _netLastFormatted={nv:undefined,nu:"B/s",tv:undefined,tu:"B/s"};
+// 前端计算状态（CPU jiffies、网络字节数等）
+var _prevJiffies=null,_prevNet={rx:0,tx:0,ts:0},_netInit={rx0:0,tx0:0};
+var _settingsMap={packages:{}};
 
 function checkD(){
-  var b=document.getElementById("btnD");
-  var mb=document.getElementById("mBtnS");
+  var ap=document.getElementById("btnAP");
+  var scr=document.getElementById("btnScreen");
+  var mbAP=document.getElementById("mBtnAP");
+  var mbScr=document.getElementById("mBtnScr");
   if(_cache.ap_online===true){
-    if(b){b.className="safe";b.textContent="后端";_dOk=true}
-    if(mb){mb.className="safe";mb.textContent="后端"}
+    if(ap){ap.className="safe";_dOk=true}
+    if(mbAP){mbAP.className="safe"}
   }else if(_cache.ap_online===false){
-    if(b){b.className="danger";b.textContent="后端";_dOk=false}
-    if(mb){mb.className="danger";mb.textContent="后端"}
+    if(ap){ap.className="danger";_dOk=false}
+    if(mbAP){mbAP.className="danger"}
   }else{
-    if(b){b.className="";b.textContent="后端";_dOk=false}
-    if(mb){mb.className="";mb.textContent="后端"}
+    if(ap){ap.className="";_dOk=false}
+    if(mbAP){mbAP.className=""}
   }
+  // 息屏服务（由后端 TCP 检测端口 20000）
+  if(_cache.screen_online===true){if(scr)scr.className="safe";if(mbScr)mbScr.className="safe"}
+  else if(_cache.screen_online===false){if(scr)scr.className="danger";if(mbScr)mbScr.className="danger"}
+  else if(scr)scr.className=""
 }
 
 // 事件委托：统一处理 DOM 点击
@@ -241,17 +231,13 @@ document.body.addEventListener("click",function(e){
   var t=e.target,id=t.id;
   if(id==="btnTheme"){toggleTheme();return}
   if(id==="btnCfg"||id==="btnCfgClose"||id==="btnCfgCancel"){toggleCfg();return}
-  if(id==="btnFiles"||id==="btnFilesClose"){toggleFiles();return}
-  if(id==="btnWeb"){window.open("http://"+location.hostname+":22267","_blank");return}
-  if(id==="btnScreen"||id==="mBtnScr"){toggleScreen();return}
+  if(id==="btnAP"||id==="mBtnAP"){window.open("http://"+location.hostname+":22267","_blank");return}
+  if(id==="btnScreen"||id==="mBtnScr"){window.open("http://"+location.hostname+":20000","_blank");return}
   if(id==="title"){var n=prompt("请输入新标题:",t.textContent);if(n&&n.trim())t.textContent=n.trim();return}
   if(id==="btnFloatClose"){toggleFloat();return}
   if(id==="btnCfgSave"){saveCfg();return}
   if(id==="btnCfgAddRow"){cfgAddRow();return}
-  if(id==="btnUnlock"){filesUnlock();return}
-  if(id==="btnFilesMkdir"){filesMkdir();return}
-  if(id==="filesTopBar"){var _d=document.getElementById("filesOverlay");if(_d&&_d.style.display=="flex")filesLoad("downloads");return}
-  if(id==="filesUploadInput"){filesUpload();return}
+  if(id==="btnQuickAdd"){cfgQuickAdd();return}
   // 进程表头排序
   if(id&&id.match(/^pb\d$|^mpb\d$/)){ps(parseInt(id.slice(-1)));return}
   // 设置侧边栏导航
@@ -259,19 +245,14 @@ document.body.addEventListener("click",function(e){
   // 移动端底部按钮
   if(id==="mBtnTheme"){toggleTheme();return}
   if(id==="mBtnCfg"){toggleCfg();return}
-  if(id==="mBtnFiles"){toggleFiles();return}
-  if(id==="mBtnD"){window.open("http://"+location.hostname+":22267","_blank");return}
-  if(id==="mBtnScr"){toggleScreen();return}
   if(id==="mBtnP"){toggleFloat();return}
   // KILL 按钮
   if(t.classList.contains("btnKill")){
     killProc(t.getAttribute("data-pid"),t.getAttribute("data-pkg"));return
   }
-  // 进程表行点击复制
+  // 进程表行点击复制包名
   var row=t.closest(".procRow");
   if(row){doCopy(row.getAttribute("data-cl")||"");return}
-  // 包名复制按钮
-  if(t.classList.contains("cpBtn")){doCopy(t.getAttribute("data-cl")||"");t.textContent="✅";setTimeout(function(){t.textContent="📋"},800);return}
 });
 
 // 温度警告浮动提示（hover 显示）
@@ -294,37 +275,19 @@ document.body.addEventListener("mouseleave",function(e){
   }
 });
 
-function toggleScreen(){
-  var btn=document.getElementById("btnScreen")||document.getElementById("mBtnScr");
-  var action=_cache.screen_on===false?"on":"off";
-  fetch("/api/screen",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:action})}).then(function(r){return r.json()}).then(function(d){
-    if(d.status==="ok"){
-      _cache.screen_on=d.screen==="on";
-      syncScreenBtn()
-    }
-  }).catch(function(e){})
-}
-function syncScreenBtn(){
-  var b=document.getElementById("btnScreen");var m=document.getElementById("mBtnScr");
-  var on=_cache.screen_on!==false;
-  if(b){b.textContent=on?"熄屏":"亮屏";b.className=on?"":"scroff"}
-  if(m){m.textContent=on?"熄屏":"亮屏";m.className=on?"":"scroff"}
-}
+
 
 function setTheme(t){
-  document.body.classList.remove("light","colorful");
-  if(t==="light")document.body.classList.add("light");
-  if(t==="colorful")document.body.classList.add("colorful");
-  var labels={dark:"☀️ 浅色",light:"🌙 多彩",colorful:"🌙 深色"};
+  document.body.classList.toggle("light",t==="light");
+  var labels={dark:"☀️ 浅色",light:"🌙 深色"};
   var b=document.getElementById("btnTheme");
   if(b)b.textContent=labels[t]||"☀️ 浅色";
   var mb=document.getElementById("mBtnTheme");
   if(mb)mb.textContent=labels[t]||"☀️ 浅色"
 }
 function toggleTheme(){
-  var cur=document.body.classList.contains("colorful")?"colorful":document.body.classList.contains("light")?"light":"dark";
-  var next={dark:"light",light:"colorful",colorful:"dark"};
-  setTheme(next[cur])
+  var cur=document.body.classList.contains("light")?"light":"dark";
+  setTheme(cur==="dark"?"light":"dark")
 }
 
 function e(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
@@ -366,16 +329,22 @@ function animNum(id,val,suf,dec){
 function ws_connect(){
   var wu="ws://"+location.hostname+":5001";
   _ws=new WebSocket(wu);
-  _ws.onmessage=function(ev){try{Object.assign(_cache,JSON.parse(ev.data));render();syncScreenBtn()}catch(e){}};
+  _ws.onmessage=function(ev){try{Object.assign(_cache,JSON.parse(ev.data));_debouncedRender()}catch(e){}};
   _ws.onclose=function(){setTimeout(ws_connect,3000)};}
 
-function ps(n){_so=n;for(var i=0;i<5;i++){var e=document.getElementById("pb"+i);if(e)e.className=i===n?"on":"";var me=document.getElementById("mpb"+i);if(me)me.className=i===n?"on":""}}
+function ps(n){
+  if(_so===n){_soDir=_soDir===1?2:1}else{_so=n;_soDir=1}
+  var arrows={1:" ▼",2:" ▲"};
+  for(var i=0;i<5;i++){
+    var e=document.getElementById("pb"+i);if(e){e.className=i===n?"on":"";e.textContent=e.textContent.replace(/ [▼▲]/,"")+(i===n?arrows[_soDir]:"")}
+    var me=document.getElementById("mpb"+i);if(me){me.className=i===n?"on":"";me.textContent=me.textContent.replace(/ [▼▲]/,"")+(i===n?arrows[_soDir]:"")}
+  }
+}
 
 function toggleFloat(){
   var e=document.getElementById("floatOverlay");
   // 关闭其他窗口
   document.getElementById("cfgOverlay").style.display="none";
-  document.getElementById("filesOverlay").style.display="none";
   // 切换自身
   e.style.display=e.style.display==="flex"?"none":"flex";
   if(e.style.display==="flex"){var mt=document.getElementById("mproc");if(mt&&!mt.rows.length)render()}
@@ -383,7 +352,6 @@ function toggleFloat(){
 function toggleCfg(){
   var e=document.getElementById("cfgOverlay");
   document.getElementById("floatOverlay").style.display="none";
-  document.getElementById("filesOverlay").style.display="none";
   if(e.style.display==="flex"){e.style.display="none";return}
   e.style.display="flex";
   document.getElementById("cfgMsg").textContent="加载中...";
@@ -398,9 +366,9 @@ function toggleCfg(){
   }).catch(function(e){document.getElementById("cfgMsg").textContent="无法加载，请确认服务器已重启 (需支持 /api/config 接口)"})
 }
 function cfgRenderSide(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports","restart"];
-  var labels={chips:"芯片",packages:"应用",implementers:"厂商ID",vendor_keywords:"关键词",autostart:"自启动",process:"进程",version:"版本",ports:"端口",restart:"重启"};
-  var noCnt=["process","version","ports","restart"];
+  var groups=["chips","packages","autostart","collect_speeds","hidden_procs","process","version","ports","restart"];
+  var labels={chips:"芯片",packages:"应用",autostart:"自启动",collect_speeds:"采集速度",hidden_procs:"隐藏进程",process:"Kill-进程",version:"版本",ports:"端口",restart:"重启"};
+  var noCnt=["process","version","ports","restart","collect_speeds","hidden_procs"];
   var h='<div style="font-size:10px;color:var(--p3);padding:2px 4px;margin-bottom:2px">分类</div>';
   for(var i=0;i<groups.length;i++){
     var k=groups[i];
@@ -413,13 +381,15 @@ function cfgRenderSide(){
   document.getElementById("cfgSide").innerHTML=h
 }
 function cfgSelectTab(key){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports","restart"];
+  if(key==="process")window._allProcs=null;
+  var groups=["chips","packages","autostart","collect_speeds","hidden_procs","process","version","ports","restart"];
   window._cfgTab=groups.indexOf(key);
   cfgRenderSide();
   cfgRenderTable()
 }
 function cfgRenderTable(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports","restart"];
+  var groups=["chips","packages","autostart","collect_speeds","hidden_procs","process","version","ports","restart"];
+  var labels={chips:"芯片",packages:"应用",autostart:"自启动",collect_speeds:"采集速度",hidden_procs:"隐藏进程",process:"Kill-进程",version:"版本",ports:"端口",restart:"重启"};
   var key=groups[window._cfgTab];
   if(key==="process"){
     renderProcess();return
@@ -438,6 +408,12 @@ function cfgRenderTable(){
   if(key==="autostart"){
     renderAutostart();return
   }
+  if(key==="hidden_procs"){
+    renderHiddenProcs();return
+  }
+  if(key==="collect_speeds"){
+    renderCollectSpeed();return
+  }
   var h='<table class=cfg-tbl style=width:100%><tr><th style="text-align:left;padding:2px 4px;border-bottom:1px solid var(--border);width:45%">键 (Key)</th><th style="text-align:left;padding:2px 4px;border-bottom:1px solid var(--border);width:45%">值 (Value)</th><th style="width:10%;border-bottom:1px solid var(--border)"></th></tr>';
   for(var i=0;i<keys.length;i++){
     var safeK=String(keys[i]).replace(/"/g,"&quot;");
@@ -449,16 +425,93 @@ function cfgRenderTable(){
   var qa=document.getElementById("btnQuickAdd");
   if(qa)qa.style.display=(_cache.fg_pkg&&_cache.fg_pkg!="?")?"":"none"
 }
+function renderCollectSpeed(){
+  var cur=window._cfgData.collect_speeds||{fast:1,medium:1,slow:1};
+  var channels=[
+    {k:"fast",  l:"⚡ 快速", items:[["CPU+网络",2],["频率",2],["内存",2],["进程列表",2],["AP进程",2]], baseMin:2, baseMax:2},
+    {k:"medium",l:"🔋 中速", items:[["电池+前台",10],["CPU温度",10]],                  baseMin:10,baseMax:10},
+    {k:"slow",  l:"🐢 慢速", items:[["存储",30],["AP端口检测+IP",10],["型号识别",60]],   baseMin:10,baseMax:60},
+  ];
+  var opts=[{v:0.25,l:"极速"},{v:0.5,l:"快速"},{v:1.0,l:"标准"},{v:2.0,l:"省电"},{v:4.0,l:"超省电"}];
+  var h='<div style=display:flex;flex-direction:column;gap:8px;padding:10px>';
+  for(var c of channels){
+    var val=cur[c.k]!==undefined?cur[c.k]:1.0;
+    h+='<div class=csCard data-channel="'+c.k+'" style="padding:10px 12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;margin-bottom:4px">';
+    h+='<div style=font-size:13px;font-weight:600;color:var(--fg);margin-bottom:6px>'+c.l+'</div>';
+    h+='<div class=csOpts style=display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px>';
+    for(var o of opts){
+      var checked=Math.abs(val-o.v)<0.01?'checked':'';
+      var lo=Math.round(c.baseMin*o.v*10)/10, hi=Math.round(c.baseMax*o.v*10)/10;
+      var range=lo===hi?lo+'秒':lo+'~'+hi+'秒';
+      h+='<label style="flex:1;min-width:60px;text-align:center;padding:4px;background:'+(checked?'var(--th-on)':'var(--btn-bg)')+';border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;color:'+(checked?'var(--bg)':'var(--fg)')+'">';
+      h+='<input type=radio name=cs_'+c.k+' value="'+o.v+'" '+checked+' style=display:none onchange="var p=this.parentElement.parentElement;p.querySelectorAll(\'label\').forEach(function(l){l.style.background=\'var(--btn-bg)\';l.style.color=\'var(--fg)\'});this.parentElement.style.background=\'var(--th-on)\';this.parentElement.style.color=\'var(--bg)\';updateCSInterval(p,this.value)">'+o.l+'<br><span style=font-size:9px;opacity:.7>'+range+'/次</span></label>'
+    }
+    h+='</div>';
+    // 显示该通道下各采集项目的具体间隔
+    h+='<div class=csItems style=font-size:10px;color:var(--p3);line-height:1.6>';
+    for(var i=0;i<c.items.length;i++){
+      var item=c.items[i];
+      var actual=Math.round(item[1]*val*10)/10;
+      h+='<span style=margin-right:8px>· '+item[0]+' <span class=csVal style=color:var(--fg)>'+(actual|0)+'s</span></span>'
+    }
+    h+='</div></div>'
+  }
+  h+='<div style=font-size:11px;color:var(--p3);margin-top:4px>保存后需重启生效</div>';
+  h+='</div>';
+  document.getElementById("cfgBody").innerHTML=h;
+  document.getElementById("btnQuickAdd").style.display="none";
+  window._csBases={fast:[2,2,2,2,2],medium:[10,10],slow:[30,10,60]}
+}
+function updateCSInterval(card,val){
+  var v=parseFloat(val);
+  var ch=card.getAttribute("data-channel");
+  var bases=window._csBases[ch];
+  if(!bases)return;
+  var items=card.querySelectorAll(".csItems .csVal");
+  for(var i=0;i<items.length&&i<bases.length;i++){
+    items[i].textContent=(Math.round(bases[i]*v*10)/10|0)+"s"
+  }
+}
+function renderHiddenProcs(){
+  var data=window._cfgData.hidden_procs||{};
+  var h='<div id=hiddenProcsWrap style=display:flex;flex-direction:column;gap:4px;padding:6px;font-size:12px>';
+  h+='<div style=font-size:11px;color:var(--p3);margin-bottom:4px>添加需要隐藏的进程名前缀（如 android.），匹配到的进程将不出现在列表中</div>';
+  var keys=Object.keys(data);
+  if(!keys.length)keys=["android."];
+  h+='<table class=cfg-tbl style=width:100%><tr><th style="text-align:left;padding:2px 4px;border-bottom:1px solid var(--border);width:80%">进程前缀</th><th style="width:20%;border-bottom:1px solid var(--border)"></th></tr>';
+  for(var i=0;i<keys.length;i++){
+    h+='<tr><td style="padding:3px 4px"><input class=cfgKey value="'+e(keys[i])+'" style="width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:13px"></td><td style="padding:3px 4px;text-align:center"><button class=delRowBtn style="background:rgba(239,68,68,.12);border:none;color:#ef4444;border-radius:4px;cursor:pointer;font-size:13px;width:28px;height:28px">❌</button></td></tr>'
+  }
+  h+='</table>';
+  h+='<button id=addPrefixBtn style="background:var(--btn-bg);border:1px dashed var(--border);color:var(--th-on);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;margin-top:4px">+ 新增前缀</button>';
+  h+='</div>';
+  document.getElementById("cfgBody").innerHTML=h;
+  document.getElementById("btnQuickAdd").style.display="none";
+  // 事件委托：删除行 / 新增前缀
+  var wrap=document.getElementById("hiddenProcsWrap");
+  wrap.addEventListener("click",function(e){
+    if(e.target.classList.contains("delRowBtn")){e.target.closest("tr").remove()}
+  });
+  document.getElementById("addPrefixBtn").addEventListener("click",function(){
+    var tbl=document.querySelector("#hiddenProcsWrap table");
+    if(!tbl)return;
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td style="padding:3px 4px"><input class=cfgKey style="width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:13px"></td><td style="padding:3px 4px;text-align:center"><button class=delRowBtn style="background:rgba(239,68,68,.12);border:none;color:#ef4444;border-radius:4px;cursor:pointer;font-size:13px;width:28px;height:28px">❌</button></td>';
+    tbl.appendChild(tr)
+  })
+}
 function renderAutostart(){
   var data=window._cfgData.autostart||{};
-  var autolabels={sshd:"SSH 服务",dashboard:"APPanel 仪表盘",ap_backend:"AP 后端",auto_screen_off:"AP后端运行自动熄屏",kill_azurlane:"电池≥50°C杀碧蓝航线 (持续15分钟)",kill_ap_hot:"电池≥50°C关闭AP进程 (持续15分钟)",fix_adb_port:"自动固定ADB端口为5555"};
+  var autolabels={sshd:"SSH 服务",dashboard:"APPanel 仪表盘",ap_backend:"AP 后端",hot_protect:"电池≥50°C持续15分钟杀进程",fix_adb_port:"自动固定ADB端口为5555"};
   var keys=Object.keys(autolabels);
   var h='<div style=display:flex;flex-direction:column;gap:4px>';
   for(var i=0;i<keys.length;i++){
     var label=autolabels[keys[i]]||keys[i];
     var checked=data[keys[i]]?'checked':'';
     h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px">';
-    h+='<span style=font-size:14px;font-weight:600;color:var(--fg)>'+label+'</span>';
+    h+='<div style=display:flex;flex-direction:column;gap:2px><span style=font-size:14px;font-weight:600;color:var(--fg)>'+label+'</span>';
+    if(keys[i]==="fix_adb_port")h+='<span style=font-size:11px;color:var(--th-tag-fg)>需 root，否则重启后需 Termux 重新配对</span>';
+    h+='</div>';
     h+='<label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer">';
     h+='<input type=checkbox class=cfgToggle data-key="'+keys[i]+'" '+checked+' style="opacity:0;width:0;height:0">';
     h+='<span class=toggleSlider style="position:absolute;top:0;left:0;right:0;bottom:0;background:var(--th-btn-border);border-radius:26px;transition:.3s"></span></label></div>'
@@ -475,27 +528,57 @@ function renderAutostart(){
   });
   document.getElementById("btnQuickAdd").style.display="none"
 }
-function renderProcess(){
-  var h='<div style=display:flex;flex-direction:column;gap:2px;font-size:12px>';
-  var pr=_cache.pr||[];
-  if(pr.length===0){
-    h+='<div style="padding:20px;text-align:center;color:var(--p3)">暂无进程数据，等待 WebSocket 推送...</div>'
-  }else{
-    var sorted=JSON.parse(JSON.stringify(pr)).sort(function(a,b){return (parseFloat(b.c)||0)-(parseFloat(a.c)||0)});
-    for(var i=0;i<sorted.length;i++){
-      var p=sorted[i];
-      var pid=p.p,mem=p.m||'-',cpu=p.c||'-',name=p.an||p.n||'-',pkg=p.cl||'';
-      h+=`<div style="display:flex;align-items:center;gap:4px;padding:4px 6px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px">
-      <span style=width:50px;color:var(--p0);font-size:10px>${pid}</span>
-      <span style=width:40px;color:var(--p1);font-size:10px>${cpu}%</span>
-      <span style=width:60px;color:var(--p2);font-size:10px>${mem}</span>
-      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${e(name)}</span>
-      <button data-pid="${pid}" data-pkg="${e(pkg)}" class=btnKill style="background:rgba(239,68,68,.15);border:none;color:#ef4444;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 8px;font-weight:600">KILL</button></div>`
-    }
+function renderProcess(filter){
+  var d=_cache, pkgMap=d._pkg_map||{};
+  // 共享 render() 的 _procCache，避免重复解析
+  if(d.ps_raw!==_procCache.raw){
+    // 强制 render() 下次重解析
+    _procCache.raw="";
+    render()
   }
+  // 过滤 + 排序
+  var procs=_procCache.list;
+  if(filter&&filter.trim()){
+    var f=filter.trim().toLowerCase();
+    procs=procs.filter(function(p){return p.p.indexOf(f)>=0||p.cl.toLowerCase().indexOf(f)>=0||p.an.toLowerCase().indexOf(f)>=0})
+  }
+  procs.sort(function(a,b){return (parseFloat(b.c)||0)-(parseFloat(a.c)||0)});
+  // 三区布局
+  function _listHtml(arr){
+    var h='';
+    for(var i=0;i<arr.length;i++){var p=arr[i];
+      h+=`<div class=procRow data-cl="${e(p.cl||'')}" style="display:flex;align-items:center;gap:4px;padding:4px 6px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;cursor:pointer" title="点击复制: ${e(p.cl||'')}">
+      <span style=width:50px;color:var(--p0);font-size:10px>${p.p}</span>
+      <span style=width:40px;color:var(--p1);font-size:10px>${p.c}%</span>
+      <span style=width:60px;color:var(--p2);font-size:10px>${p.m}</span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px" title="${e(p.cl)}">${e(p.an||'-')}</span>
+      <button data-pid="${p.p}" data-pkg="${e(p.cl||'')}" class=btnKill style="background:rgba(239,68,68,.15);border:none;color:#ef4444;border-radius:4px;cursor:pointer;font-size:11px;padding:2px 8px;font-weight:600">KILL</button></div>`
+    }
+    return h||'<div style="padding:20px;text-align:center;color:var(--p3)">无匹配进程</div>'
+  }
+  var existing=document.getElementById("procBodyWrap");
+  if(existing){
+    // 只更新列表和计数
+    document.getElementById("procListCnt").textContent='共 '+procs.length+' 个进程';
+    existing.innerHTML=_listHtml(procs);
+    return
+  }
+  // 首次渲染
+  var h='<div style=display:flex;flex-direction:column;gap:2px;font-size:12px;height:100%>';
+  h+='<div style=display:flex;gap:4px;align-items:center;flex-shrink:0;margin-bottom:4px><input id=procFilterInput type=text placeholder="PID / 包名 / 应用名..." style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px"><button id=procSearchBtn style="background:var(--th-on);border:none;color:var(--bg);padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px">查询</button></div>';
+  h+='<div id=procListCnt style=font-size:10px;color:var(--p3);margin-bottom:4px;flex-shrink:0>共 '+procs.length+' 个进程</div>';
+  h+='<div style=font-size:10px;color:var(--p3);margin-bottom:4px;flex-shrink:0>系统进程需 root 权限才能 kill</div>';
+  h+='<div id=procBodyWrap style="flex:1;overflow-y:auto;min-height:0">'+_listHtml(procs)+'</div>';
   h+='</div>';
   document.getElementById("cfgBody").innerHTML=h;
-  document.getElementById("btnQuickAdd").style.display="none"
+  document.getElementById("btnQuickAdd").style.display="none";
+  document.getElementById("procSearchBtn").addEventListener("click",function(){
+    var v=document.getElementById("procFilterInput").value;
+    renderProcess(v)
+  });
+  document.getElementById("procFilterInput").addEventListener("keydown",function(e){
+    if(e.key==="Enter")document.getElementById("procSearchBtn").click()
+  })
 }
 function killProc(pid,pkg){
   if(!confirm("确定要 kill 进程 "+pid+(pkg?" ("+pkg+")":"")+" 吗？"))return;
@@ -506,9 +589,12 @@ function killProc(pid,pkg){
     .then(function(d){
       document.getElementById("cfgMsg").textContent=d.results?d.results.join("; "):(d.message||"kill 完成");
       if(d.status==="ok"){
-        // 立即刷新一次，后续等 WebSocket 推送自动更新
-        renderProcess();
-        document.getElementById("cfgMsg").textContent+="，列表将在数秒内自动更新"
+        // 强制刷新数据
+        _procCache.raw="";
+        _procDirty=true;
+        render();
+        renderProcess(document.getElementById("procFilterInput")?.value||"");
+        document.getElementById("cfgMsg").textContent+="，列表已更新"
       }
     }).catch(function(e){document.getElementById("cfgMsg").textContent="请求失败: "+e})
 }
@@ -524,7 +610,7 @@ function renderVersion(){
   h+='</div>';
   h+='<div style=display:flex;gap:6px;margin-top:4px>';
   h+='<button onclick=\'checkVersion()\' style="flex:1;background:var(--th-on);border:none;color:var(--bg);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600">🔄 刷新</button>';
-  h+='<button id=btnPullUpdate onclick=\'pullUpdate()\' style="display:none;flex:1;background:#4ade80;border:none;color:#000;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600">⬇️ 一键拉取更新</button>';
+  h+='<button onclick=\'manualUpdate(this)\' style="flex:1;background:#4ade80;border:none;color:#000;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600">⬇️ 手动更新</button>';
   h+='</div>';
   h+='</div>';
   document.getElementById("cfgBody").innerHTML=h;
@@ -532,10 +618,11 @@ function renderVersion(){
   checkVersion()
 }
 function checkVersion(){
-  document.getElementById("vLocal").textContent="查询中...";
-  document.getElementById("vRemote").textContent="查询中...";
-  document.getElementById("btnPullUpdate").style.display="none";
+  var _vl=document.getElementById("vLocal"),_vr=document.getElementById("vRemote");
+  if(_vl)_vl.textContent="查询中...";
+  if(_vr)_vr.textContent="查询中...";
   fetch("/api/version").then(function(r){return r.json()}).then(function(d){
+    if(!document.getElementById("vLocal"))return;
     var lh=d.local.hash||"?";
     var lt=d.local.time||"";
     document.getElementById("vLocal").textContent=lh+(lt?" ("+lt+")":"");
@@ -545,36 +632,28 @@ function checkVersion(){
       if(d.local.hash===d.remote.hash){
         document.getElementById("cfgMsg").textContent="✅ 已是最新版本";
       }else{
-        document.getElementById("cfgMsg").textContent="⬆️ 有新版本可用";
-        document.getElementById("btnPullUpdate").style.display=""
+        document.getElementById("cfgMsg").textContent="⬆️ 有新版本可用，请手动 git pull 更新"
       }
     }
   }).catch(function(e){
-    document.getElementById("vLocal").textContent="获取失败";
-    document.getElementById("vRemote").textContent="获取失败";
-    document.getElementById("cfgMsg").textContent="版本查询失败: "+e
+    if(!document.getElementById("vLocal"))return;
+    var _vl2=document.getElementById("vLocal");if(_vl2)_vl2.textContent="获取失败";
+    var _vr2=document.getElementById("vRemote");if(_vr2)_vr2.textContent="获取失败";
+    var _cm=document.getElementById("cfgMsg");if(_cm)_cm.textContent="版本查询失败: "+e
   })
 }
-function pullUpdate(){
+function manualUpdate(btn){
   if(!confirm("确定要拉取最新代码并重启吗？"))return;
-  var btn=document.getElementById("btnPullUpdate");
-  btn.textContent="⏳ 正在更新...";
-  btn.disabled=true;
+  btn.textContent="⏳ 正在更新...";btn.disabled=true;
   fetch("/api/update",{method:"POST"}).then(function(r){return r.json()}).then(function(d){
-    if(d.status==="ok"){
-      document.getElementById("cfgMsg").textContent=d.message||"更新成功，正在重启...";
-      btn.textContent="✅ 更新完成";
-    }else{
-      document.getElementById("cfgMsg").textContent="更新失败: "+(d.message||"未知错误");
-      btn.textContent="⬇️ 一键拉取更新";
-      btn.disabled=false
-    }
+    document.getElementById("cfgMsg").textContent=d.message||(d.status==="ok"?"更新成功，正在重启...":"更新失败");
+    if(d.status!=="ok"){btn.textContent="⬇️ 手动更新";btn.disabled=false}
   }).catch(function(e){
     document.getElementById("cfgMsg").textContent="更新请求失败: "+e;
-    btn.textContent="⬇️ 一键拉取更新";
-    btn.disabled=false
+    btn.textContent="⬇️ 手动更新";btn.disabled=false
   })
 }
+
 function renderPorts(){
   var h='<div style=display:flex;flex-direction:column;gap:8px;padding:6px;font-size:13px>';
   h+='<div style="padding:10px 12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px">';
@@ -582,9 +661,13 @@ function renderPorts(){
   h+='<div style=display:flex;flex-direction:column;gap:6px>';
   h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>Flask(web) 端口</span><input id=portFlask type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
   h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>WebSocket 端口</span><input id=portWs type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
-  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>AP(ALAS) 端口</span><input id=portAp type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
+  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>AzurPilot 端口</span><input id=portAp type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
   h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>ADB 端口</span><input id=portAdb type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
-  h+='<div style=font-size:11px;color:var(--p3);margin-top:4px>留空则使用默认值（Flask:80, WS:5001, AP:22267, ADB:5555）</div>';
+  h+='<label style=display:flex;align-items:center;gap:8px><span style=width:120px;color:var(--p3)>熄屏服务端口</span><input id=portScreen type=number class=portInp style="flex:1;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px"></label>';
+  h+='<div style=font-size:11px;color:var(--p3);margin-top:6px>留空则使用默认值（Flask:80, WS:5001, ADB:5555, 熄屏:20000, AzurPilot:22267）</div>';
+  h+='<div style=font-size:11px;color:var(--p3);margin-top:4px>🔗 <a href="https://github.com/YuCould/ScreenOff-APPanel" target=_blank style=color:var(--title)>熄屏服务</a> 需自行下载部署</div>';
+  h+='<div style=font-size:11px;color:var(--p3);margin-top:2px>🔗 <a href="https://github.com/wess09/AzurPilot" target=_blank style=color:var(--title)>AzurPilot</a> 碧蓝航线自动化后端</div>';
+  h+='<div style=font-size:11px;color:var(--p3);margin-top:2px>🔗 <a href="https://shizuku.rikka.app/" target=_blank style=color:var(--title)>Shizuku</a> 熄屏服务需要 Shizuku 权限</div>';
   h+='<div style=font-size:11px;color:#facc15;margin-top:2px>⚠️ ADB端口：无 root 每次重启后需重新开启无线调试并配对</div>';
   h+='<div style=font-size:11px;color:#facc15;margin-top:2px>⚠️ 修改后需重启 APPanel 才能生效</div>';
   h+='</div></div>';
@@ -598,6 +681,7 @@ function renderPorts(){
       document.getElementById("portWs").value=d.current.ws_port||"";
       document.getElementById("portAp").value=d.current.ap_port||"";
       document.getElementById("portAdb").value=d.current.adb_port||"";
+      document.getElementById("portScreen").value=d.current.screen_port||"";
     }
   }).catch(function(e){document.getElementById("cfgMsg").textContent="端口配置加载失败: "+e})
 }
@@ -606,11 +690,13 @@ function savePorts(){
   var wp=document.getElementById("portWs").value;
   var ap=document.getElementById("portAp").value;
   var adb=document.getElementById("portAdb").value;
+  var sp=document.getElementById("portScreen").value;
   fetch("/api/ports",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
     flask_port: fp?parseInt(fp):null,
     ws_port: wp?parseInt(wp):null,
     ap_port: ap?parseInt(ap):null,
-    adb_port: adb?parseInt(adb):null
+    adb_port: adb?parseInt(adb):null,
+    screen_port: sp?parseInt(sp):null
   })}).then(function(r){return r.json()}).then(function(d){
     document.getElementById("cfgMsg").textContent=d.message||(d.status==="ok"?"已保存":"保存失败");
   }).catch(function(e){document.getElementById("cfgMsg").textContent="保存失败: "+e})
@@ -623,8 +709,20 @@ function renderRestart(){
   h+='<div style=font-size:12px;color:var(--p3);margin-bottom:16px>重启后页面将自动重连</div>';
   h+='<button onclick=\'doRestart()\' style="background:#ef4444;border:none;color:#fff;padding:10px 32px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700">确认重启</button>';
   h+='</div></div>';
+  h+='<div style="padding:20px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;text-align:center;width:100%;margin-top:8px">';
+  h+='<div style=font-size:40px;margin-bottom:12px>☠️</div>';
+  h+='<div style=font-size:15px;font-weight:600;color:var(--fg);margin-bottom:6px>关闭 proot-distro ubuntu</div>';
+  h+='<div style=font-size:12px;color:var(--p3);margin-bottom:16px>强制终止 Ubuntu 所有进程（AP 后端等）</div>';
+  h+='<button onclick=\'doKillUbuntu()\' style="background:#ef4444;border:none;color:#fff;padding:10px 32px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700">终止 Ubuntu</button>';
+  h+='</div>';
   document.getElementById("cfgBody").innerHTML=h;
   document.getElementById("btnQuickAdd").style.display="none"
+}
+function doKillUbuntu(){
+  if(!confirm("确定要终止 proot-distro ubuntu 所有进程吗？"))return;
+  fetch("/api/kill-ubuntu",{method:"POST"}).then(function(r){return r.json()}).then(function(d){
+    document.getElementById("cfgMsg").textContent=d.message||"操作完成"
+  }).catch(function(e){document.getElementById("cfgMsg").textContent="请求失败: "+e})
 }
 function doRestart(){
   if(!confirm("确定要重启 APPanel 吗？"))return;
@@ -645,35 +743,43 @@ function cfgAddRow(){
   if(!tbl){document.getElementById("cfgMsg").textContent="请先选择一个分类";return}
   var tr=document.createElement("tr");
   tr.innerHTML='<td style="padding:3px 4px"><input class=cfgKey style="width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:13px"></td><td style="padding:3px 4px"><input class=cfgVal style="width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:13px"></td><td style="padding:3px 4px;text-align:center"><button onclick=\'this.closest("tr").remove()\' style="background:rgba(239,68,68,.12);border:none;color:#ef4444;border-radius:4px;cursor:pointer;font-size:13px;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;transition:background .15s" title="删除">❌</button></td>';
-  tbl.appendChild(tr)
+  tbl.appendChild(tr);
+  // 聚焦到新输入框并滚动到可视区域
+  var inp=tr.querySelector(".cfgKey");if(inp){inp.focus();setTimeout(function(){inp.scrollIntoView({block:"center",behavior:"smooth"})},50)}
 }
 function cfgQuickAdd(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports","restart"];
-  var key=groups[window._cfgTab];
-  var k,v,label;
-  if(key==="packages"){k=_cache.fg_pkg;v=_cache.fg;label="包名"}
-  else if(key==="chips"){k=_cache.cpu_raw;v=_cache.cpu_model;label="芯片"}
-  else if(key==="implementers"){k=_cache.cpu_impl;v="";label="厂商"}
-  else if(key==="vendor_keywords"){k=_cache.cpu_raw;v="";label="关键词"}
-  if(!k||k=="?"||k=="-"){document.getElementById("cfgMsg").textContent="当前无"+label+"数据";return}
+  var groups=["chips","packages","autostart","collect_speeds","hidden_procs","process","version","ports","restart"];
+  if(groups[window._cfgTab]!=="packages"){document.getElementById("cfgMsg").textContent="请先切换到「应用」分类";return}
+  var pkg=_cache.fg_pkg;
+  if(!pkg||pkg==="?"){document.getElementById("cfgMsg").textContent="没有获取到前台应用";return}
   var tbl=document.querySelector("#cfgBody table");
-  if(!tbl)return;
-  var exists=false;
-  var rows=tbl.querySelectorAll(".cfgKey");
-  for(var i=0;i<rows.length;i++){if(rows[i].value===k){exists=true;break}}
-  if(exists){document.getElementById("cfgMsg").textContent="该"+label+"已在列表中";return}
+  if(!tbl){document.getElementById("cfgMsg").textContent="请先切换到「应用」分类";return}
+  // 检查是否已存在
+  var existing=false;
+  tbl.querySelectorAll(".cfgKey").forEach(function(inp){if(inp.value.trim()===pkg)existing=true});
+  if(existing){document.getElementById("cfgMsg").textContent="该包名已在列表中";return}
+  var name=prompt("请输入应用名称（包名: "+pkg+"）:",pkg.split(".").pop()||"");
+  if(!name||!name.trim())return;
   var tr=document.createElement("tr");
-  tr.innerHTML='<td style="padding:3px 4px"><input class=cfgKey value="'+k.replace(/"/g,"&quot;")+'" style="width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:13px"></td><td style="padding:3px 4px"><input class=cfgVal value="'+(v||'').replace(/"/g,"&quot;")+'" style="width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:13px"></td><td style="padding:3px 4px;text-align:center"><button onclick=\'this.closest("tr").remove()\' style="background:rgba(239,68,68,.12);border:none;color:#ef4444;border-radius:4px;cursor:pointer;font-size:13px;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center" title="删除">❌</button></td>';
+  tr.innerHTML='<td style="padding:3px 4px"><input class=cfgKey value="'+e(pkg)+'" style="width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:13px"></td><td style="padding:3px 4px"><input class=cfgVal value="'+e(name.trim())+'" style="width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:13px"></td><td style="padding:3px 4px;text-align:center"><button onclick=\'this.closest("tr").remove()\' style="background:rgba(239,68,68,.12);border:none;color:#ef4444;border-radius:4px;cursor:pointer;font-size:13px;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center" title="删除">❌</button></td>';
   tbl.appendChild(tr);
-  document.getElementById("cfgMsg").textContent="已添加: "+k+(v?" → "+v:"")
+  document.getElementById("cfgMsg").textContent="已添加: "+pkg+" → "+name.trim();
 }
 function saveCfg(){
-  var groups=["chips","packages","implementers","vendor_keywords","autostart","process","version","ports","restart"];
+  var groups=["chips","packages","autostart","collect_speeds","hidden_procs","process","version","ports","restart"];
   // 收集当前可见标签页数据
   var curKey=groups[window._cfgTab];
   if(curKey==="process"||curKey==="version"||curKey==="restart"){document.getElementById("cfgMsg").textContent="该页面无需保存";return}
   if(curKey==="ports"){savePorts();return}
-  if(curKey==="autostart"){
+  if(curKey==="collect_speeds"){
+    var speeds={};
+    for(var c of["fast","medium","slow"]){
+      var sel=document.querySelector('input[name=cs_'+c+']:checked');
+      if(sel)speeds[c]=parseFloat(sel.value)
+    }
+    window._cfgData.collect_speeds=speeds;
+    // 继续执行下面的保存逻辑
+  }else if(curKey==="autostart"){
     // 从开关收集
     var autoData={};
     document.querySelectorAll(".cfgToggle").forEach(function(cb){autoData[cb.dataset.key]=cb.checked});
@@ -695,109 +801,7 @@ function saveCfg(){
     m.textContent=d.message;m.style.color=d.status==="ok"?"#4ade80":"#ef4444";cfgRenderSide();cfgRenderTable()
   }).catch(function(e){m.textContent="保存失败: "+e;m.style.color="#ef4444"})
 }
-window._filesPath="";window._filesUnlocked=false;
-function toggleFiles(){
-  var e=document.getElementById("filesOverlay");
-  document.getElementById("floatOverlay").style.display="none";
-  document.getElementById("cfgOverlay").style.display="none";
-  if(e.style.display==="flex"){e.style.display="none";return}
-  e.style.display="flex";
-  window._filesPath="";filesLoad("")
-}
-function filesLoad(p){
-  window._filesPath=p;
-  document.getElementById("filesMsg").textContent="加载中...";
-  fetch("/api/files?path="+encodeURIComponent(p)).then(function(r){return r.json()}).then(function(d){
-    if(d.status!=="ok"){document.getElementById("filesMsg").textContent="加载失败: "+d.message;return}
-    document.getElementById("filesCwd").textContent=d.cwd;
-    var tb=document.getElementById("filesTopBar");
-    if(tb)tb.style.display=p?"none":"flex";
-    var h="<table class=tb style=width:100%;border-collapse:collapse;font-size:12px>";
-    h+="<tr style=height:40px><th style=text-align:left;padding:3px 6px;height:40px;line-height:34px;border-bottom:1px solid var(--border)>名称</th><th style=text-align:right;padding:3px 6px;height:40px;line-height:34px;border-bottom:1px solid var(--border);width:70px>大小</th><th style=text-align:center;padding:3px 6px;height:40px;line-height:34px;border-bottom:1px solid var(--border);width:260px>操作</th></tr>";
-    if(p){h+='<tr style=height:40px;cursor:pointer;color:var(--title) onclick=\'filesLoad("'+filesParent(p)+'")\'><td colspan=3 style=height:40px;line-height:34px;padding:3px 6px;border-bottom:1px solid var(--border)>.. 上级目录</td></tr>'}
-    var unlocked=window._filesUnlocked;
-    // 文件夹排在前面
-    d.items.sort(function(a,b){if(a.dir&&!b.dir)return-1;if(!a.dir&&b.dir)return 1;return a.name.localeCompare(b.name)});
-    for(var i=0;i<d.items.length;i++){
-      var it=d.items[i];
-      var icon=it.virtual?"🔗":(it.dir?"📁":"📄");
-      var sz=it.dir?"":filesSize(it.size);
-      var click=it.dir?'onclick=\'filesLoad("'+it.path+'")\'':'';
-      var protected=["dashboard.py","page.html","settings.json","favicon.ico","favicon.png",".gitignore","requirements.txt","README.md"].indexOf(it.name)>=0;
-      var fc=protected?(!unlocked?'#ef4444':'#4ade80'):'';
-      h+='<tr style=height:40px;cursor:'+(it.dir?'pointer':'default')+' '+click+'>';
-      h+='<td style=height:40px;line-height:34px;padding:3px 6px;border-bottom:1px solid var(--border)'+(fc?';color:'+fc:'')+'>'+icon+" "+it.name+"</td>";
-      h+='<td style=height:40px;line-height:34px;text-align:right;padding:3px 6px;color:var(--p3);border-bottom:1px solid var(--border)>'+sz+"</td>";
-      h+='<td style=text-align:center;padding:3px 6px;white-space:nowrap;font-size:11px;border-bottom:1px solid var(--border)>';
-      var b=function(label,color,onclick,disabled){if(disabled)return '<span style=display:inline-block;width:60px;height:30px;line-height:28px;text-align:center;font-size:11px;color:var(--p3);opacity:.4;padding:0 1px;margin:0 5px>'+label+'</span>';return '<button type=button style=width:60px;height:30px;line-height:1;text-align:center;font-size:11px;color:'+color+';background:var(--btn-bg);border:1px solid '+color+';border-radius:8px;padding:0;margin:0 5px;cursor:pointer;font-family:inherit;font-weight:700" onclick=\'event.stopPropagation();'+onclick+'\'>'+label+'</button>'};
-      var dl='filesDelete("'+it.path+'","'+it.name+'")',rn='filesRename("'+it.path+'")',dw=encodeURIComponent(it.path);
-      var bd=function(dw){return '<a href="/api/files/download?path='+dw+'" style=display:none></a><button type=button style=width:60px;height:30px;line-height:1;text-align:center;font-size:11px;color:var(--title);background:var(--btn-bg);border:1px solid var(--title);border-radius:8px;padding:0;margin:0 5px;cursor:pointer;font-family:inherit;font-weight:700" onclick=\'event.stopPropagation();this.previousElementSibling.click()\'>下载</button>'};
-      if(it.virtual){continue}else if(it.dir){
-      }else if(it.dir){
-        h+=b("保护","var(--p3)","",1)+b("下载","var(--p3)","",1)+b("删除","#ef4444",dl,0)+b("更名","var(--title)",rn,0)
-      }else if(protected && !unlocked){
-        h+=b("🔒保护","var(--p3)","",0)+bd(dw)+b("删除","var(--p3)","",1)+b("更名","var(--p3)","",1)
-      }else{
-        h+=b("保护","var(--p3)","",1)+bd(dw)+b("删除","#ef4444",dl,0)+b("更名","var(--title)",rn,0)
-      }
-      h+="</td>";
-      h+="</tr>"
-    }
-    h+="</table>";
-    document.getElementById("filesBody").innerHTML=h;
-    document.getElementById("filesMsg").textContent=""
-  }).catch(function(e){document.getElementById("filesMsg").textContent="加载失败: "+e})
-}
-function filesParent(p){var i=p.lastIndexOf("/");return i>0?p.substring(0,i):""}
-function filesSize(s){if(!s)return"";if(s>=1048576)return(s/1048576).toFixed(1)+"MB";if(s>=1024)return(s/1024).toFixed(1)+"KB";return s+"B"}
-function filesUpload(){
-  var input=document.getElementById("filesUploadInput");
-  if(!input.files||!input.files[0])return;
-  var fd=new FormData();fd.append("file",input.files[0]);
-  var msg=document.getElementById("filesMsg");msg.textContent="上传中...";
-  fetch("/api/files/upload?path="+encodeURIComponent(window._filesPath),{method:"POST",body:fd}).then(function(r){return r.json()}).then(function(d){
-    msg.textContent=d.message;msg.style.color=d.status==="ok"?"#4ade80":"#ef4444";
-    if(d.status==="ok")filesLoad(window._filesPath)
-  }).catch(function(e){msg.textContent="上传失败: "+e;msg.style.color="#ef4444"});
-  input.value=""
-}
-function filesMkdir(){
-  var name=prompt("请输入新文件夹名称:");
-  if(!name||!name.trim())return;
-  var msg=document.getElementById("filesMsg");msg.textContent="创建中...";
-  fetch("/api/files/mkdir",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({path:window._filesPath,name:name.trim()})}).then(function(r){return r.json()}).then(function(d){
-    msg.textContent=d.message;msg.style.color=d.status==="ok"?"#4ade80":"#ef4444";
-    if(d.status==="ok")filesLoad(window._filesPath)
-  }).catch(function(e){msg.textContent="创建失败: "+e;msg.style.color="#ef4444"})
-}
-function filesUnlock(){
-  window._filesUnlocked=!window._filesUnlocked;
-  var btn=document.getElementById("btnUnlock");
-  if(btn)btn.textContent=window._filesUnlocked?"🔓 已解锁":"🔒 解锁";
-  filesLoad(window._filesPath)
-}
-function filesRename(path){
-  var oldName=path.split("/").pop();
-  var name=prompt("请输入新名称:",oldName);
-  if(!name||!name.trim()||name.trim()===oldName)return;
-  var msg=document.getElementById("filesMsg");msg.textContent="更名中...";
-  var body={path:path,name:name.trim()};
-  if(window._filesUnlocked)body.force=true;
-  fetch("/api/files/rename",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){return r.json()}).then(function(d){
-    msg.textContent=d.message;msg.style.color=d.status==="ok"?"#4ade80":"#ef4444";
-    if(d.status==="ok")filesLoad(window._filesPath)
-  }).catch(function(e){msg.textContent="更名失败: "+e;msg.style.color="#ef4444"})
-}
-function filesDelete(path,name){
-  if(!confirm("确定删除「"+name+"」？此操作不可撤销。"))return;
-  var msg=document.getElementById("filesMsg");msg.textContent="删除中...";
-  var body={path:path};
-  if(window._filesUnlocked)body.force=true;
-  fetch("/api/files/delete",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){return r.json()}).then(function(d){
-    msg.textContent=d.message;msg.style.color=d.status==="ok"?"#4ade80":"#ef4444";
-    if(d.status==="ok")filesLoad(window._filesPath)
-  }).catch(function(e){msg.textContent="删除失败: "+e;msg.style.color="#ef4444"})
-}
+
 
 // Init DOM
 document.getElementById("sub1").innerHTML=
@@ -806,20 +810,21 @@ document.getElementById("sub1").innerHTML=
   '<div class=si id=si5 style=width:70px;position:relative><div class=k>CPU温度</div><div class=v id=s5 style=color:#ef4444>-</div></div>'+
   '<div class=si id=si6 style=width:70px;position:relative><div class=k>电池温度</div><div class=v id=s6 style=color:#ef4444>-</div></div>';
 document.getElementById("sub2").innerHTML=
-  '<div class=si style=width:150px><div class=k>设备</div><div class=v id=s1 style=color:#a78bfa>-</div></div>'+
-  '<div class=si style=width:150px><div class=k>系统</div><div class=v id=s2 style=color:#7ecb8e>-</div></div>'+
+  '<div class=si style=width:150px><div class=k>设备</div><div class=v id=s1 style=color:#a78bfa;font-size:12px>-</div></div>'+
+  '<div class=si style=width:150px><div class=k>系统</div><div class=v id=s2 style=color:#7ecb8e;font-size:12px>-</div></div>'+
   '<div class=si style=width:150px><div class=k>运行时间</div><div class=v id=s4 style=color:#f5b342;font-size:12px>-</div></div>';
 
 document.getElementById("right").innerHTML=
   '<div class=th><button class=on id=pb0>PID</button><button id=pb1>CPU</button><button id=pb2>内存</button><button id=pb3>应用</button><button id=pb4>包名</button></div>'+
   '<div class=tb><table><tbody id=proc>'+
-  '<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'.repeat(30)+
-  '</tbody></table></div>';
+  '<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'.repeat(100)+
+  '</tbody></table></div>'+
+  '<div id=procBashInfo style="font-size:10px;color:var(--p3);padding:2px 6px;flex-shrink:0;display:none"></div>';
 document.getElementById("left").innerHTML=
-  '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>CPU</div><div class=gr><div class=gn id=cpu_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=cpu_f style=width:1%></div></div><div class=gd id=cpu_d></div><div id=cf_big style=position:absolute;top:4px;left:4px;font-size:10px;color:var(--p3);opacity:.6></div><div id=cf_small style=position:absolute;top:18px;left:4px;font-size:10px;color:var(--p3);opacity:.6></div><div id=cpu_sub style=position:absolute;top:4px;right:6px;font-size:10px;color:var(--p3);opacity:.6></div></div>'+
-  '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>内存</div><div class=gr><div class=gn id=mem_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=mem_f style=width:1%></div></div><div class=gd id=mem_d></div><div id=mem_top style=position:absolute;top:4px;right:6px;font-size:10px;color:var(--p3);opacity:.6;text-align:right;line-height:1.4></div><div id=mem_top_left style=position:absolute;top:4px;left:4px;font-size:10px;color:var(--p3);opacity:.6;line-height:1.4></div></div>'+
+  '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>CPU</div><div class=gr><div class=gn id=cpu_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=cpu_f style=width:1%></div></div><div class=gd id=cpu_d></div><div id=cpu_sub style=position:absolute;top:4px;right:6px;font-size:10px;color:var(--p3);opacity:.6></div></div>'+
+  '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>内存</div><div class=gr><div class=gn id=mem_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=mem_f style=width:1%></div></div><div class=gd id=mem_d></div></div>'+
   '<div class=g style=flex:.7;padding:4px 6px;position:relative;overflow:hidden><div class=l style=font-size:18px>存储</div><div class=gr><div class=gn id=sto_v style=color:var(--hl);font-size:18px>-</div></div><div class=gb style=min-width:80px><div class=gf id=sto_f style=width:1%></div></div><div class=gd id=sto_d></div><div id=sto_project style=position:absolute;top:4px;left:4px;font-size:10px;color:var(--p3);opacity:.6></div></div>'+
-  '<div class=g style=flex:1.5;gap:2px;position:relative><div class=l>网络</div><div class=g2><div><div class=gn id=net_d style=color:#a78bfa;font-size:13px>-</div><div class=gd>下载</div></div><div><div class=gn id=net_u style=color:#ef4444;font-size:13px>-</div><div class=gd>上传</div></div></div><canvas id=netChart width=180 height=60 style=width:100%;height:60px;border-radius:4px></canvas><div id=net_ip4 style=position:absolute;top:2px;left:4px;font-size:9px;color:var(--p3);opacity:.6;line-height:1.3></div><div id=net_ip6 style=position:absolute;top:14px;left:4px;font-size:9px;color:var(--p3);opacity:.6;line-height:1.3></div><div id=net_total_dl style=position:absolute;bottom:4px;left:6px;font-size:9px;color:var(--p3);opacity:.6></div><div id=net_total_ul style=position:absolute;bottom:4px;right:6px;font-size:9px;color:var(--p3);opacity:.6></div></div>';
+  '<div class=g style=flex:1.5;gap:2px;position:relative><div class=l>网络</div><div class=g2><div><div class=gn id=net_d style=color:#a78bfa;font-size:12px>-</div><div class=gd>下载</div></div><div><div class=gn id=net_u style=color:#ef4444;font-size:12px>-</div><div class=gd>上传</div></div></div><canvas id=netChart width=180 height=60 style=width:100%;height:60px;border-radius:4px></canvas><div id=net_ip4 style=position:absolute;top:2px;left:4px;font-size:9px;color:var(--p3);opacity:.6;line-height:1.3></div><div id=net_ip6 style=position:absolute;top:14px;left:4px;font-size:9px;color:var(--p3);opacity:.6;line-height:1.3></div><div id=net_total_dl style=position:absolute;bottom:4px;left:6px;font-size:9px;color:var(--p3);opacity:.6></div><div id=net_total_ul style=position:absolute;bottom:4px;right:6px;font-size:9px;color:var(--p3);opacity:.6></div></div>';
 
 // 自定义浮动滚动条
 function initScroll(containerId, barId, thumbId){
@@ -836,107 +841,220 @@ function initScroll(containerId, barId, thumbId){
 }
 initScroll("cfgSide","cfgSideBar","cfgSideThumb");
 initScroll("cfgBody","cfgBodyBar","cfgBodyThumb");
-initScroll("filesBody","filesBodyBar","filesBodyThumb");
+
+function fmtBytes(x){
+  if(x>=1073741824)return(x/1073741824).toFixed(1)+"GB";
+  if(x>=1048576)return(x/1048576).toFixed(1)+"MB";
+  if(x>=1024)return(x/1024).toFixed(1)+"KB";
+  return x+"B"
+}
 
 function render(){
-  var d=_cache;
+  var d=_cache, pkgMap=d._pkg_map||{};
   
-  // Sub - 前台进程
-  ud("s0",d.fg||"-");var _s0=document.getElementById("s0");if(_s0&&d.fg_pkg&&d.fg_pkg!=d.fg)_s0.title=d.fg_pkg;
+  // ── 前台应用（原始包名 → 映射表解析）──
+  var fgName = d.fg_pkg&&d.fg_pkg!="?" ? (pkgMap[d.fg_pkg]||d.fg_pkg) : "-";
+  ud("s0",fgName);
+  var _s0=document.getElementById("s0");if(_s0&&d.fg_pkg)_s0.title=d.fg_pkg;
   // 设备、系统
   ud("s1",d.brand&&d.dn&&d.dn.indexOf("Failure")<0?d.brand+" "+d.dn:(d.md||"-"));
   ud("s2",d.av||"-");
-  var _b=d.bt||"-";if(_b!="-"&&_b.endsWith("%"))animNum("s3",parseInt(_b),"%");else ud("s3",_b);
-  // 运行时间：基于启动时间戳本地自动计算
-  if(d.startup_ts&&!window._uptimeBase){window._uptimeBase={ts:d.startup_ts*1000}}
-  if(window._uptimeBase){var _el=Math.floor((Date.now()-window._uptimeBase.ts)/1000);var _ts=_el%60;var _tm=Math.floor(_el/60)%60;var _th=Math.floor(_el/3600)%24;var _td=Math.floor(_el/86400)%7;var _tw=Math.floor(_el/604800);var _parts=[];if(_tw)_parts.push(_tw+"周");if(_td)_parts.push(_td+"天");if(_th||_parts.length)_parts.push(_th+"时");if(_tm||_parts.length)_parts.push(_tm+"分");_parts.push(_ts+"秒");document.getElementById("s4").textContent=_parts.join("")}
-  if(d.ct){var _m=d.ct.match(/^[\d.]+/);if(_m)animNum("s5",parseFloat(_m[0]),"°C",1);else ud("s5",d.ct);var _cn=parseFloat(d.ct);document.getElementById("cpuFloat").style.display=_cn>70?"block":"none"}
-  if(d.btt){var _m=d.btt.match(/^[\d.]+/);if(_m)animNum("s6",parseFloat(_m[0]),"°C",1);else ud("s6",d.btt);var _tn=parseFloat(d.btt);document.getElementById("btFloat").style.display=_tn>40?"block":"none"}
+  // 电池：原始 bt_raw 0-100
+  if(d.bt_raw!==undefined)animNum("s3",d.bt_raw,"%");else ud("s3","-");
+  // 运行时间
+  if(d.startup_ts&&!window._uptimeBase)window._uptimeBase={ts:d.startup_ts*1000};
+  if(window._uptimeBase){
+    var _el=Math.floor((Date.now()-window._uptimeBase.ts)/1000), _ts=_el%60;
+    var _tm=Math.floor(_el/60)%60,_th=Math.floor(_el/3600)%24,_td=Math.floor(_el/86400)%7,_tw=Math.floor(_el/604800);
+    var _parts=[];
+    if(_tw)_parts.push(_tw+"周");if(_td)_parts.push(_td+"天");
+    if(_th||_parts.length)_parts.push(_th+"时");if(_tm||_parts.length)_parts.push(_tm+"分");_parts.push(_ts+"秒");
+    document.getElementById("s4").textContent=_parts.join("")
+  }
+  // CPU 温度：原始 ct_raw millidegree → °C
+  if(d.ct_raw!==undefined){
+    var cv=d.ct_raw/1000;animNum("s5",cv,"°C",1);
+    document.getElementById("cpuFloat").style.display=cv>70?"block":"none"
+  }else ud("s5","-");
+  // 电池温度：原始 btt_raw 十分位 → °C
+  if(d.btt_raw!==undefined){
+    var bv=d.btt_raw/10;animNum("s6",bv,"°C",1);
+    document.getElementById("btFloat").style.display=bv>40?"block":"none"
+  }else ud("s6","-");
   
-  // Left gauges
-  if(d.cpu_raw!==undefined){animNum("cpu_v",Math.round(d.cpu_raw),"%");var _sub=document.getElementById("cpu_sub");if(_sub&&d.cpu_total!==undefined)_sub.textContent="总和 "+Math.round(d.cpu_total)+"%"}else ud("cpu_v","-");
-  ud("cpu_b",d.cpu_total?Math.round(d.cpu_total)+"%":"-");
-  ud("cpu_d",d.cpu_model||"-");
-  var c=document.getElementById("cpu_f");if(c){c.style.width=Math.min(d.cr||0,100)+"%"}
-  ud("cf_small",d.cf_small?d.cf_small+"MHz":"");
-  ud("cf_big",d.cf_big?d.cf_big+"MHz":"");
-  // 频率实时数值
-  
-  if(d.mp!==undefined)animNum("mem_v",d.mp,"%",1);else ud("mem_v","-");
-  ud("mem_d",d.mu?d.mu+" / "+d.mt:"-");
-  var m=document.getElementById("mem_f");if(m){m.style.width=Math.min(d.mp||0,100)+"%"}
-  // 内存占用 TOP3（按内存排序）
-  var mt=document.getElementById("mem_top");
-  var mtl=document.getElementById("mem_top_left");
-  if(mt&&mtl&&d.pr){
-    var memSorted=JSON.parse(JSON.stringify(d.pr)).sort(function(a,b){return (b.mn||0)-(a.mn||0)});
-    mt.innerHTML='';
-    mtl.innerHTML='';
-    for(var i=0;i<3&&i<memSorted.length;i++){
-      var p=memSorted[i];
-      mtl.innerHTML+='<div>'+e(p.m||'')+'</div>';
-      mt.innerHTML+='<div style=overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px>'+e(p.an?p.an:'-')+'</div>';
+  // ── CPU ──
+  if(d.cpu_jiffies){
+    var parts=d.cpu_jiffies.split(" ").map(Number);
+    var total=parts.reduce(function(a,b){return a+b},0), idle=parts[3];
+    if(_cpuPrev&&_cpuPrev.raw!==d.cpu_jiffies){
+      var dt=total-_cpuPrev.total, di=idle-_cpuPrev.idle;
+      var cpuPct=dt>0?Math.round((1-di/dt)*100):0;
+      // /proc/stat 第一行已是全核合计，cpuPct 就是总使用率
+      animNum("cpu_v",cpuPct,"%");
+      var _sub=document.getElementById("cpu_sub");
+      if(_sub){
+        var _active=Array.isArray(d.freqs_khz)?d.freqs_khz.filter(function(f){return f>0}).length:(d.cc?parseInt(d.cc):0);
+        _sub.textContent=_active?_active+"核活跃":""
+      }
+      var c=document.getElementById("cpu_f");if(c)c.style.width=Math.min(cpuPct,100)+"%"
     }
+    if(_cpuPrev===null||_cpuPrev.raw!==d.cpu_jiffies)_cpuPrev={raw:d.cpu_jiffies,total:total,idle:idle}
+  }else ud("cpu_v","-");
+  ud("cpu_d",d.cpu_model||"-");
+
+  
+  // ── 内存：原始 mem_kb ──
+  if(d.mem_kb){
+    var usedKb=d.mem_kb-d.mem_avail_kb, memPct=Math.round(usedKb/d.mem_kb*100);
+    animNum("mem_v",memPct,"%",1);
+    ud("mem_d",Math.round(usedKb/1024)+"MB / "+Math.round(d.mem_kb/1024)+"MB");
+    var mf=document.getElementById("mem_f");if(mf)mf.style.width=Math.min(memPct,100)+"%"
+  }else ud("mem_v","-");
+  
+  // ── 存储：原始 sto_total_kb ──
+  if(d.sto_total_kb){
+    var stoUsed=d.sto_used_kb||(d.sto_total_kb-d.sto_avail_kb), stoPct=Math.round(stoUsed/d.sto_total_kb*100);
+    animNum("sto_v",stoPct,"%");
+    ud("sto_d",fmtBytes(stoUsed*1024)+" / "+fmtBytes(d.sto_total_kb*1024));
+    var sf=document.getElementById("sto_f");if(sf)sf.style.width=Math.min(stoPct,100)+"%"
+  }else ud("sto_v","-");
+  ud("sto_project",d.project_bytes?"项目 "+fmtBytes(d.project_bytes):"");
+  
+  // ── 网络：原始 net_rx/net_tx + 服务端总量 ──
+  if(d.net_rx!==undefined){
+    var now=Date.now();
+    var elapsed=(now-_netState.t)/1000;
+    if(elapsed>0.3){
+      var nr=Math.max(0,(d.net_rx-_netState.rx)/elapsed), nt=Math.max(0,(d.net_tx-_netState.tx)/elapsed);
+      _netState.rx=d.net_rx;_netState.tx=d.net_tx;_netState.t=now;
+      var _fr=function(x){for(var _u of[[1073741824,"GB/s"],[1048576,"MB/s"],[1024,"KB/s"]]){if(x>=_u[0])return{x:x/_u[0],u:_u[1]}}return{x:x,u:"B/s"}};
+      var _dr=_fr(nr),_dt=_fr(nt);_netLastFormatted.nv=_dr.x;_netLastFormatted.nu=_dr.u;_netLastFormatted.tv=_dt.x;_netLastFormatted.tu=_dt.u
+    }
+    if(_netLastFormatted.nv!==undefined){
+      var _ne=document.getElementById("net_d");
+      if(_ne){var _om=_ne.textContent.match(/^[\d.]+/);var _ou=_ne.textContent.replace(/^[\d.]+/,'');
+      if(_om&&_ou!==_netLastFormatted.nu)ud("net_d",_netLastFormatted.nv.toFixed(1)+_netLastFormatted.nu);
+      else animNum("net_d",_netLastFormatted.nv,_netLastFormatted.nu,1)}
+    }else ud("net_d","-");
+    if(_netLastFormatted.tv!==undefined){
+      var _ne2=document.getElementById("net_u");
+      if(_ne2){var _om2=_ne2.textContent.match(/^[\d.]+/);var _ou2=_ne2.textContent.replace(/^[\d.]+/,'');
+      if(_om2&&_ou2!==_netLastFormatted.tu)ud("net_u",_netLastFormatted.tv.toFixed(1)+_netLastFormatted.tu);
+      else animNum("net_u",_netLastFormatted.tv,_netLastFormatted.tu,1)}
+    }else ud("net_u","-");
+    // 总量由服务端统一推送（所有客户端一致）
+    if(d.net_rx_total!==undefined){
+      var _ft=function(x){if(x>=1073741824)return{x:x/1073741824,u:"GB"};return{x:x/1048576,u:"MB"}}
+      var _rt=_ft(d.net_rx_total);animNum("net_total_dl",_rt.x," "+_rt.u+"↓",1);
+      var _tt=_ft(d.net_tx_total);animNum("net_total_ul",_tt.x," "+_tt.u+"↑",1)
+    }
+  }else{ud("net_d","-");ud("net_u","-")}
+  // IP 显示（从 d.ip/d.ip6 解析）
+  var _ip4=document.getElementById("net_ip4");
+  if(_ip4){
+    var ips=(d.ip||"").split("\n").filter(function(s){return s&&s!="?"&&s!="-"});
+    _ip4.textContent=ips.length?"IPv4: "+ips[0]:"-"
+  }
+  var _ip6=document.getElementById("net_ip6");
+  if(_ip6){
+    var ips6=(d.ip6||"").split("\n").filter(function(s){return s&&s!="?"&&s!="-"});
+    var v6=ips6.length?ips6[0]:"-";
+    // IPv6 地址分两行显示
+    if(v6.length>20){var mid=Math.ceil(v6.length/2);v6=v6.substring(0,mid)+"<br>"+v6.substring(mid)}
+    _ip6.innerHTML="IPv6: "+v6
   }
   
-  if(d.sp!==undefined)animNum("sto_v",d.sp,"%");else ud("sto_v","-");
-  ud("sto_d",d.su?d.su+" / "+d.st:"-");
-  var s=document.getElementById("sto_f");if(s){s.style.width=Math.min(d.sp||0,100)+"%"}
-  ud("sto_project",d.project_size?"项目 "+d.project_size:"");
-  
-  ud("net_d",d.nr||"-");
-  ud("net_u",d.nt||"-");
-  // 网络仪表盘左上角 IP
-  var _ip4=document.getElementById("net_ip4");
-  if(_ip4){var ips=(d.ip||"").split("\n");var v4=ips[0];_ip4.textContent=(v4&&v4!="?"&&v4!="-")?v4:"-"}
-  var _ip6=document.getElementById("net_ip6");
-  if(_ip6){var ips6=(d.ip6||"").split("\n");var v6=ips6[0];_ip6.textContent="IPv6: "+((v6&&v6!="?"&&v6!="-")?v6:"-")}
-  // 总流量统计
-  function _fb2(x){if(x>=1073741824)return(x/1073741824).toFixed(1)+"GB";if(x>=1048576)return(x/1048576).toFixed(1)+"MB";if(x>=1024)return(x/1024).toFixed(1)+"KB";return x+"B"}
-  ud("net_total_dl",d.net_rx_total!==undefined?"下载 "+_fb2(d.net_rx_total):"");
-  ud("net_total_ul",d.net_tx_total!==undefined?"上传 "+_fb2(d.net_tx_total):"");
-  
-  // AP 后端存活
-  checkD();
-  // AP 按钮可见性：无 AP 后端的用户自动隐藏
-  var _apAvail = d.ap_available;
-  var _apShow = _apAvail === true || _apAvail === undefined;
-  var _els = ["btnWeb","btnD","mBtnD","mBtnS"];
-  for(var _i=0;_i<_els.length;_i++){var _el=document.getElementById(_els[_i]);if(_el)_el.style.display=_apShow?"":"none"}
-  
-  // Network chart data - 仅更新插值状态，由 rAF 循环 60fps 逐帧绘制
+  // ── 网络图表插值 ──
   var _nr=0,_nt=0;
-  if(d.nr&&d.nr!="-"&&d.nr!="0B/s"){var m=d.nr.match(/^([\d.]+)([KMG]?B)\/s/);if(m){_nr=parseFloat(m[1]);if(m[2]=="KB")_nr*=1024;if(m[2]=="MB")_nr*=1048576;if(m[2]=="GB")_nr*=1073741824}}
-  if(d.nt&&d.nt!="-"&&d.nt!="0B/s"){var m=d.nt.match(/^([\d.]+)([KMG]?B)\/s/);if(m){_nt=parseFloat(m[1]);if(m[2]=="KB")_nt*=1024;if(m[2]=="MB")_nt*=1048576;if(m[2]=="GB")_nt*=1073741824}}
+  function _rateToBytes(v,u){if(u=="KB/s")return v*1024;if(u=="MB/s")return v*1048576;if(u=="GB/s")return v*1073741824;return v}
+  _nr=_netLastFormatted.nv!==undefined?_rateToBytes(_netLastFormatted.nv,_netLastFormatted.nu):0;
+  _nt=_netLastFormatted.tv!==undefined?_rateToBytes(_netLastFormatted.tv,_netLastFormatted.tu):0;
   if(_nr!==_netInterp.to.rx||_nt!==_netInterp.to.tx){_netInterp.from={rx:_netInterp.to.rx,tx:_netInterp.to.tx};_netInterp.to={rx:_nr,tx:_nt};_netInterp.t0=performance.now()}
   
-  // Process table
-  var pr=JSON.parse(JSON.stringify(d.pr||[]));
-  var cols=[{k:"p",n:1},{k:"c",n:1},{k:"m",n:1},{k:"an"},{k:"cl"}];
-  pr.sort(function(a,b){
-    var c=cols[_so],va=a[c.k],vb=b[c.k];
-    if(c.n){var ma=parseFloat(va),mb=parseFloat(vb);return isNaN(ma)||isNaN(mb)?0:mb-ma}
-    return String(va).localeCompare(String(vb))
-  });
-  // 桌面端进程表 (innerHTML 批量更新)
-  var _h='';
-  for(var i=0;i<30;i++){
-    if(i<pr.length){var p=pr[i];_h+='<tr class=procRow data-cl="'+e(p.cl||'')+'" style=cursor:pointer title="点击复制: '+e(p.cl||'')+'"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4><span class=cpText>'+e(p.cl||'')+'</span><span class=cpBtn data-cl="'+e(p.cl||'')+'">📋</span></td></tr>'}
-    else{_h+='<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'}
-  }
-  document.getElementById("proc").innerHTML=_h;
-  // 移动端浮动窗口进程表
-  var mt=document.getElementById("mproc");
-  if(mt&&document.getElementById("floatOverlay").style.display==="flex"){
-    var _mh='';
-    for(var i=0;i<30;i++){
-      if(i<pr.length){var p=pr[i];_mh+='<tr class=procRow data-cl="'+e(p.cl||'')+'" style=cursor:pointer title="点击复制: '+e(p.cl||'')+'"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4><span class=cpText>'+e(p.cl||'')+'</span><span class=cpBtn data-cl="'+e(p.cl||'')+'">📋</span></td></tr>'}
-      else{_mh+='<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'}
+  // ── AP 后端 ──
+  checkD();
+  // AP 后端按钮始终可见，绿光/红光检测连通性
+  
+  // ── 进程列表：缓存解析结果+HTML，仅 ps_raw 或排序变化时重建 ──
+  var procs;
+  if(d.ps_raw!==_procCache.raw){
+    _procCache.raw=d.ps_raw;
+    _procCache.list=[];
+    _procDirty=true;
+    var _hidden=d._hidden_procs||{}, _adbPids=d._adb_pids||{}, _localPids=d._local_pids||{};
+    if(d.ps_raw){
+      var _plines=d.ps_raw.split("\n");
+      if(_plines.length>0&&_plines[0].trim().startsWith("PID"))_plines=_plines.slice(1);
+      for(var _l of _plines){
+        _l=_l.trim();if(!_l)continue;
+        var _a=_l.split(/\s+/);
+        if(_a.length<4||!/^\d+$/.test(_a[0])||parseInt(_a[0])<=0)continue;
+        if(_a[3].startsWith("[")||_a[3].startsWith("sh -c ps"))continue;
+        var pid=_a[0],cpuPct=_a[1],rssStr=_a[2],cmdStr=_a.slice(3).join(" ").substring(0,80);
+        var _hf=false;for(var _hk in _hidden){if(cmdStr.startsWith(_hk)||cmdStr.includes("/"+_hk)){_hf=true;break}}if(_hf)continue;
+        var rssKb=/^\d+$/.test(rssStr)?parseInt(rssStr):0;
+        var _al=(function(p,c){for(var _ch in _adbPids){if(String(_adbPids[_ch])===String(p))return"APPanel-"+_ch+"采集"}
+          for(var _ch in _localPids){if(String(_localPids[_ch])===String(p))return"APPanel-"+_ch+"-shell"}
+          if(c.includes("adb -s 127.0.0.1:5555"))return"APPanel-adb";
+          if(c.startsWith("ps -e"))return"APPanel-ps";
+          if(c.includes("gui.py"))return"APPanel-AP后端";return""})(pid,cmdStr);
+        var appName=pkgMap[_a[3].split("/").pop()]||pkgMap[cmdStr.split(":")[0]]||_al||"";
+        _procCache.list.push({p:pid,c:cpuPct,m:rssKb>=1024?(rssKb/1024).toFixed(1)+"M":rssKb+"K",mn:rssKb/1024,n:cmdStr.substring(0,30),cl:cmdStr,an:appName||cmdStr.split("/").pop().substring(0,20)})
+      }
+      if(d.self_pid){
+        var _found=false;
+        for(var _pi=0;_pi<_procCache.list.length;_pi++){
+          if(_procCache.list[_pi].p==String(d.self_pid)){
+            _procCache.list[_pi].an="APPanel-主进程";
+            _found=true;
+            break
+          }
+        }
+        if(!_found){
+          _procCache.list.push({p:String(d.self_pid),c:"0.5",m:d.self_rss_kb?fmtBytes(d.self_rss_kb*1024):"0K",mn:d.self_rss_kb/1024||0,n:"dashboard.py",cl:"dashboard.py",an:"APPanel-主进程"})
+        }
+      }
     }
-    mt.innerHTML=_mh;
   }
+  procs=_procCache.list;
+  // 排序（三态：默认→倒序→正序）
+  var _sortKey=_so+","+_soDir;
+  if(_sortKey!==_lastSortKey||_procDirty){
+    _lastSortKey=_sortKey;
+    _procDirty=false;
+    if(_soDir!==0){
+      var cols=[{k:"p",n:1},{k:"c",n:1},{k:"mn",n:1},{k:"an"},{k:"cl"}];
+      procs.sort(function(a,b){
+        var c=cols[_so],va=a[c.k],vb=b[c.k];
+        if(c.n){var ma=parseFloat(va),mb=parseFloat(vb);if(isNaN(ma)||isNaN(mb))return 0;return _soDir===2?ma-mb:mb-ma}
+        var r=String(va).localeCompare(String(vb));
+        return _soDir===2?-r:r
+      })
+    }
+    function _tblRows(arr){
+      var h='';
+      for(var i=0;i<100;i++){
+        if(i<arr.length){var p=arr[i];h+='<tr class=procRow data-cl="'+e(p.cl||'')+'" style=cursor:pointer title="点击复制: '+e(p.cl||'')+'"><td class=p0>'+e(p.p)+'</td><td class=p1>'+e(p.c)+(p.c?'%':'')+'</td><td class=p2>'+e(p.m||'')+'</td><td class=p3>'+(p.an?e(p.an):'')+'</td><td class=p4>'+e(p.cl||'')+'</td></tr>'}
+        else h+='<tr><td class=p0></td><td class=p1></td><td class=p2></td><td class=p3></td><td class=p4></td></tr>'
+      }return h
+    }
+    _procHtmlCache.html=_tblRows(procs);
+    _procHtmlCache.sortKey=_sortKey
+  }
+  document.getElementById("proc").innerHTML=_procHtmlCache.html;
+  // 更新 bash shell 通道信息
+  var _bi=document.getElementById("procBashInfo");
+  if(_bi&&d._bash_procs){
+    var _bp=d._bash_procs,_bh=[];
+    for(var _ch in _bp){_bh.push('<span style="margin-right:8px">'+_ch+':<b style="margin:0 2px;font-weight:600">'+_bp[_ch].pid+'</b></span>')}
+    _bi.innerHTML='<span style=opacity:.6>Shell通道:</span> '+_bh.join('');
+    _bi.style.display='block'
+  }else if(_bi){_bi.style.display='none'}
+  var mpTable=document.getElementById("mproc");
+  if(mpTable&&document.getElementById("floatOverlay").style.display==="flex")mpTable.innerHTML=_procHtmlCache.html;
+  
+
 }
-syncScreenBtn()
 
 function startNetLoop(){
   function tick(){
@@ -981,7 +1099,7 @@ function startNetLoop(){
 // 移动端布局
 if(window.innerWidth<=768){
   var _bmb=document.createElement("div");_bmb.className="bmb";_bmb.id="bmb";
-  _bmb.innerHTML='<button id=mBtnTheme style=font-size:12px>☀️ 浅色</button><button id=mBtnCfg style=font-size:12px>设置</button><button id=mBtnFiles style=font-size:12px>文件</button><button id=mBtnD style=max-width:none;flex:1.5>访问web端</button><button id=mBtnS>后端</button><button id=mBtnScr>熄屏</button><button id=mBtnP>进程</button>';
+  _bmb.innerHTML='<button id=mBtnTheme style=font-size:12px>☀️ 浅色</button><button id=mBtnCfg style=font-size:12px>设置</button><button id=mBtnAP style=max-width:none;flex:1.5>访问AzurPilot</button><button id=mBtnScr style=font-size:12px>访问息屏</button><button id=mBtnP>进程</button>';
   document.body.appendChild(_bmb)
 }
 
@@ -989,8 +1107,11 @@ if(window.innerWidth<=768){
 ws_connect();
 checkD();
 render();
+// 初始化表头：CPU 降序（默认排序）
+var _pb1=document.getElementById("pb1");if(_pb1){_pb1.className="on";_pb1.textContent="CPU ▼"}
+var _mpb1=document.getElementById("mpb1");if(_mpb1){_mpb1.className="on";_mpb1.textContent="CPU ▼"}
 startNetLoop();
-setTimeout(function(){if(!_cache.cr)fetch("/api/all").then(function(r){return r.json()}).then(function(x){Object.assign(_cache,x);render();syncScreenBtn()}).catch(function(e){})},3000);
+setTimeout(function(){if(!_cache.cpu_jiffies)fetch("/api/all").then(function(r){return r.json()}).then(function(x){Object.assign(_cache,x);render()}).catch(function(e){})},3000);
 </script>
 </body>
 </html>

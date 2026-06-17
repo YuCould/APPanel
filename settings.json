@@ -1,8 +1,4 @@
 {
-  "说明": "APPanel 设置文件，通过页面上的「设置」按钮编辑，修改后自动生效",
-  "提示_chips": "芯片代号→处理器名映射，getprop ro.board.platform 返回的代号作为键",
-  "提示_packages": "应用包名→中文名映射，不在列表中的应用会自动学习加入",
-
   "chips": {
     "kona": "骁龙 865",
     "lahaina": "骁龙 888",
@@ -97,32 +93,6 @@
     "gs201": "Tensor G2",
     "gs101": "Tensor"
   },
-
-  "implementers": {
-    "0x51": "高通",
-    "0x48": "华为",
-    "0x53": "三星",
-    "0x69": "英特尔",
-    "0x61": "苹果",
-    "0x42": "博通"
-  },
-
-  "vendor_keywords": {
-    "qualcomm": "高通",
-    "qcom": "高通",
-    "mediatek": "联发科",
-    "mtk": "联发科",
-    "exynos": "三星",
-    "samsung": "三星",
-    "kirin": "华为",
-    "hisilicon": "华为",
-    "apple": "苹果",
-    "rockchip": "瑞芯微",
-    "unisoc": "紫光展锐",
-    "intel": "英特尔",
-    "bcm": "博通"
-  },
-
   "packages": {
     "com.ss.android.ugc.aweme": "抖音",
     "com.ss.android.ugc.aweme.lite": "抖音",
@@ -178,11 +148,22 @@
     "com.android.vending": "Google Play",
     "com.sec.android.app.launcher": "三星桌面",
     "com.oneplus.launcher": "一加桌面",
-    "com.coloros.launcher": "OPPO桌面"
+    "com.coloros.launcher": "OPPO桌面",
+    "com.termux": "终端"
   },
   "autostart": {
-    "sshd": false,
-    "dashboard": false,
-    "ap_backend": false
+    "sshd": true,
+    "dashboard": true,
+    "ap_backend": false,
+    "fix_adb_port": false,
+    "hot_protect": true
+  },
+  "collect_speeds": {
+    "fast": 1,
+    "medium": 1,
+    "slow": 1
+  },
+  "hidden_procs": {
+    "android.": ""
   }
 }

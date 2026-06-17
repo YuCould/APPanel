@@ -10,7 +10,7 @@ from logger import info, error
 
 # ── settings.json 路径与内存映射 ──
 _CPU_MAP_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "settings.json")
-_CPU_MAP = {"chips": {}, "implementers": {}, "vendor_keywords": {}, "packages": {}}
+_CPU_MAP = {"chips": {}, "packages": {}}
 
 def _load_settings() -> bool:
     """从 settings.json 加载映射到内存"""
@@ -20,10 +20,23 @@ def _load_settings() -> bool:
             with open(_CPU_MAP_PATH, encoding="utf-8") as _f:
                 _m = json.load(_f)
                 _CPU_MAP["chips"] = _m.get("chips", {})
-                _CPU_MAP["implementers"] = _m.get("implementers", {})
-                _CPU_MAP["vendor_keywords"] = _m.get("vendor_keywords", {})
                 _CPU_MAP["packages"] = _m.get("packages", {})
                 _CPU_MAP["autostart"] = _m.get("autostart", {})
+                # 迁移旧版 autostart 键名
+                _auto = _CPU_MAP["autostart"]
+                for _old, _new in [("kill_azurlane", "hot_protect"), ("kill_ap_hot", "hot_protect")]:
+                    if _old in _auto:
+                        _auto[_new] = _auto.pop(_old)
+                _auto.setdefault("hot_protect", True)
+                _auto.setdefault("fix_adb_port", False)
+                _CPU_MAP["collect_speeds"] = _m.get("collect_speeds", {"fast": 1.0, "medium": 1.0, "slow": 1.0})
+                _CPU_MAP["hidden_procs"] = _m.get("hidden_procs", {}) or {"android.": ""}
+                # 清理旧版本残留的无效键
+                for _k in ("implementers", "vendor_keywords", "collect_speed", "说明", "提示_chips", "提示_packages", "_startup_ts", "flask_port", "ws_port", "ap_port", "adb_port", "screen_port", "process", "version", "ports", "restart"):
+                    _m.pop(_k, None)
+                if _m != json.load(open(_CPU_MAP_PATH, encoding="utf-8")):
+                    with open(_CPU_MAP_PATH, "w", encoding="utf-8") as _f:
+                        json.dump(_m, _f, indent=2, ensure_ascii=False)
                 info(f"已加载 {len(_CPU_MAP['chips'])} 个芯片映射, {len(_CPU_MAP['packages'])} 个应用映射")
                 return True
     except Exception as _e:
@@ -59,52 +72,31 @@ if not _load_settings():
         "exynos9820": "Exynos 9820", "exynos9810": "Exynos 9810", "exynos8895": "Exynos 8895",
         "gs201": "Tensor G2", "gs101": "Tensor",
     }
-    _CPU_MAP["implementers"] = {"0x51": "高通", "0x48": "华为", "0x53": "三星", "0x69": "英特尔", "0x61": "苹果", "0x42": "博通"}
-    _CPU_MAP["vendor_keywords"] = {
-        "qualcomm": "高通", "qcom": "高通", "mediatek": "联发科", "mtk": "联发科",
-        "exynos": "三星", "samsung": "三星", "kirin": "华为", "hisilicon": "华为",
-        "apple": "苹果", "rockchip": "瑞芯微", "unisoc": "紫光展锐", "intel": "英特尔", "bcm": "博通",
-    }
     _CPU_MAP["packages"] = {"python3": "APPanel", "python": "APPanel", "dashboard.py": "APPanel"}
     _CPU_MAP["autostart"] = {
         "sshd": False,
         "dashboard": False,
         "ap_backend": False,
-        "auto_screen_off": False,
-        "kill_azurlane": False,
-        "kill_ap_hot": False,
+        "hot_protect": True,
         "fix_adb_port": False,
     }
+    _CPU_MAP["collect_speeds"] = {"fast": 1.0, "medium": 1.0, "slow": 1.0}
+    _CPU_MAP["hidden_procs"] = {"android.": ""}
     try:
         with open(_CPU_MAP_PATH, "w", encoding="utf-8") as _f:
             json.dump(_CPU_MAP, _f, indent=2, ensure_ascii=False)
     except (OSError, TypeError):
         pass
 
-# ── 系统应用前缀（排除，不自动加入映射） ──
-SYS_PREFIXES = [
-    "com.google.android.",
-    # 以下不排除
-    # "android.", "com.android.",  "com.google.", "com.qualcomm.",
-    # "com.mediatek.", "com.qti.", "com.samsung.android.", "com.miui.", "com.xiaomi.",
-    # "com.oneplus.", "com.oppo.", "com.vivo.", "com.huawei.", "com.coloros.",
-    # "com.realme.", "com.asus.", "com.sony.", "com.lge.", "com.sec.android.",
-    # # 国产厂商系统组件
-    # "com.oplus.", "com.heytap.", "com.nearme.",
-    # "com.iqoo.", "com.funtouch.",
-    # "com.zte.", "com.nubia.",
-    # "com.lenovo.", "com.motorola.",
-]
-
 # ── 设备一次性信息 ──
 LOSTAT = {"md": "?", "av": "?", "cc": "?", "cf": "?", "cm": "?", "dn": "?"}
 
 # ── 运行时状态 ──
 _ap_ever_online = False
-_pkg_label_cache = {}       # 包名→应用名称缓存
 _data_lock = threading.Lock()
 _settings_dirty = False     # 自动学习脏标记
 _sd = {"screen_on": True}   # 共享数据字典（采集器写入，广播线程读取）
+_sd_event = threading.Event()  # 采集完成事件，通知广播线程推送
 
 def _mark_dirty() -> None:
     """标记 settings 有变动，触发自动保存"""
@@ -123,8 +115,11 @@ def _auto_save_settings() -> None:
                 existing = json.load(f)
         else:
             existing = {}
-        for key in ("chips", "packages", "implementers", "vendor_keywords"):
+        for key in ("chips", "packages"):
             existing[key] = _CPU_MAP.get(key, {})
+        existing["autostart"] = _CPU_MAP.get("autostart", {})
+        existing["collect_speeds"] = _CPU_MAP.get("collect_speeds", {"fast": 1.0, "medium": 1.0, "slow": 1.0})
+        existing["hidden_procs"] = _CPU_MAP.get("hidden_procs", {}) or {"android.": ""}
         with open(_CPU_MAP_PATH, "w", encoding="utf-8") as f:
             json.dump(existing, f, indent=2, ensure_ascii=False)
         _settings_dirty = False

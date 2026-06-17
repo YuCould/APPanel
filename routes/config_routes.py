@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/us,/,in,env ,ytho,3.,,,,...,,
 # -*- coding: utf-8 -*-
 """设置 API：读取/保存 settings.json，自动生成 .bashrc"""
 import json, os
@@ -20,22 +20,12 @@ _AUTOSTART_ITEMS = {
     "ap_backend": {
         "label": "AP 后端",
         "check": "pgrep -f 'python.*gui.py' > /dev/null",
-        "start": "[ -f ~/start_ap.sh ] && bash ~/start_ap.sh >/dev/null 2>&1",
+        "start": "[ -f ~/APPanel/start_ap.sh ] && bash ~/APPanel/start_ap.sh >/dev/null 2>&1",
     },
-    "auto_screen_off": {
-        "label": "AP后端运行自动熄屏",
-        "check": "pgrep -f auto_screen_watch > /dev/null",
-        "start": "nohup sh -c '#auto_screen_watch\nwhile sleep 5; do if pgrep -f python.*gui.py > /dev/null; then svc power stayon true; input keyevent 223; fi; done' > /dev/null 2>&1 &",
-    },
-    "kill_azurlane": {
-        "label": "电池≥50°C杀碧蓝航线",
-        "check": "pgrep -f azurlane_watch > /dev/null",
-        "start": "nohup sh -c '#azurlane_watch\nwhile sleep 10; do t=$(dumpsys battery 2>/dev/null | grep temperature | awk \"{print \\$2}\"); if [ -n \"$t\" ] && [ \"$t\" -ge 500 ]; then am force-stop com.bilibili.azurlane; fi; done' > /dev/null 2>&1 &",
-    },
-    "kill_ap_hot": {
-        "label": "电池≥50°C关闭AP进程",
-        "check": "pgrep -f apkill_watch > /dev/null",
-        "start": "nohup sh -c '#apkill_watch\nwhile sleep 10; do t=$(dumpsys battery 2>/dev/null | grep temperature | awk \"{print \\$2}\"); if [ -n \"$t\" ] && [ \"$t\" -ge 500 ]; then pkill -f python.*gui.py 2>/dev/null; pkill -f start_ap.sh 2>/dev/null; fi; done' > /dev/null 2>&1 &",
+    "hot_protect": {
+        "label": "电池≥50°C持续15分钟杀进程（后端控制）",
+        "check": "pgrep -f dashboard.py > /dev/null",
+        "start": ":",
     },
     "fix_adb_port": {
         "label": "自动固定ADB端口为5555",
@@ -58,16 +48,31 @@ def _generate_bashrc(autostart: dict) -> str:
 
 
 def _apply_autostart(autostart: dict) -> str:
-    """将 autostart 配置写入 ~/.bashrc"""
+    """将 autostart 配置写入 ~/.bashrc 和 ~/.bash_profile"""
+    msgs = []
     try:
         bashrc_path = os.path.expanduser("~/.bashrc")
         content = _generate_bashrc(autostart)
         with open(bashrc_path, "w") as f:
             f.write(content)
         enabled = sum(1 for v in autostart.values() if v)
-        return f"已更新 .bashrc（{enabled} 项自启动）"
+        msgs.append(f"已更新 .bashrc（{enabled} 项自启动）")
     except Exception as e:
-        return f".bashrc 写入失败: {e}"
+        msgs.append(f".bashrc 写入失败: {e}")
+    # 确保 .bash_profile 会 source .bashrc（Termux 登录 shell 需要）
+    try:
+        bp = os.path.expanduser("~/.bash_profile")
+        src_line = "source ~/.bashrc"
+        if os.path.exists(bp):
+            with open(bp) as f:
+                if src_line in f.read():
+                    return "；".join(msgs)
+        with open(bp, "a") as f:
+            f.write(f"\n{src_line}\n")
+        msgs.append("已修复 .bash_profile 加载")
+    except Exception as e:
+        msgs.append(f".bash_profile 写入失败: {e}")
+    return "；".join(msgs)
 
 
 def register(app) -> None:
@@ -83,16 +88,40 @@ def register(app) -> None:
                 _m = json.loads(content)
                 _CPU_MAP["chips"] = _m.get("chips", {})
                 _CPU_MAP["packages"] = _m.get("packages", {})
-                _CPU_MAP["implementers"] = _m.get("implementers", {})
-                _CPU_MAP["vendor_keywords"] = _m.get("vendor_keywords", {})
-                # 处理自启动
+                # 处理自启动（仅配置变更时才写入 .bashrc）
                 autostart = _m.get("autostart", {})
+                old_autostart = _CPU_MAP.get("autostart", {})
                 _CPU_MAP["autostart"] = autostart
-                bashrc_msg = _apply_autostart(autostart)
-                return jsonify({
-                    "status": "ok",
-                    "message": f"已保存，{bashrc_msg}",
-                })
+                bashrc_msg = ""
+                if autostart != old_autostart:
+                    bashrc_msg = _apply_autostart(autostart)
+                # 处理隐藏进程
+                hp = _m.get("hidden_procs")
+                if hp is not None and isinstance(hp, dict):
+                    _CPU_MAP["hidden_procs"] = hp
+                # 处理采集速度（每个通道独立设置）
+                cs = _m.get("collect_speeds")
+                if cs is not None and isinstance(cs, dict):
+                    _CPU_MAP["collect_speeds"] = {
+                        k: max(0.1, float(v)) for k, v in cs.items()
+                        if k in ("fast", "medium", "slow")
+                    }
+                # 广播新的包名映射给所有 WS 客户端
+                try:
+                    from collectors.ws import WS_CLIENTS, ws_broadcast
+                    import asyncio
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(ws_broadcast({
+                        "_pkg_map": _CPU_MAP.get("packages", {}),
+                    }))
+                    loop.close()
+                except Exception:
+                    pass
+                msg = "已保存"
+                if bashrc_msg:
+                    msg += f"，{bashrc_msg}"
+                return jsonify({"status": "ok", "message": msg})
             except json.JSONDecodeError as e:
                 return jsonify({"status": "error", "message": f"JSON 格式错误: {e}"}), 400
             except Exception as e:

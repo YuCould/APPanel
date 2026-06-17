@@ -1,7 +1,0 @@
-{
-  "说明": "端口配置覆盖文件，留空或删掉此文件则使用 config.py 中的默认值",
-  "flask_port": null,
-  "ws_port": null,
-  "ap_port": null,
-  "adb_port": null
-}

@@ -1,40 +1,37 @@
-#!/usr/bin/env python3
+#!/usr/,,n/en, python3//,/.,,/.,.//.///
 # -*- coding: utf-8 -*-
-"""电池采集：电量 + 温度 + 高温保护"""
-import re, time
-from logger import info
-from config import ADB_ADDRESS
-from .base import cmd, _try_local
+"""中速采集：电池 + 当前前台应用（medium 通道）"""
+from .base import _adb_medium
 
 
-def collect(_bt_start: list) -> dict:
-    """采集电池电量和温度，超 50°C 15 分钟自动杀 AP 和碧蓝航线"""
-    raw_output = _try_local("dumpsys battery 2>/dev/null", "dumpsys battery 2>/dev/null", 8)
-    level_match = re.search(r"level:\s*(\d+)", raw_output)
-    temp_match = re.search(r"temperature:\s*(\d+)", raw_output)
-    temp_str = ""
-    if temp_match:
-        temp_str = f"{int(temp_match.group(1)) / 10:.1f}°C"
-    # 电池高温保护
-    temp_celsius = 0.0
-    if temp_str.endswith("°C"):
-        try:
-            temp_celsius = float(temp_str[:-2])
-        except (ValueError, TypeError):
-            pass
-    if temp_celsius >= 50:
-        if _bt_start[0] is None:
-            _bt_start[0] = time.time()
-            info(f"电池 {temp_str} 超 50°C，开始计时")
-        elif time.time() - _bt_start[0] >= 900:
-            info(f"电池 {temp_str} 超 50°C 已达 15 分钟，执行保护")
-            cmd(f'adb -s {ADB_ADDRESS} shell "am force-stop com.bilibili.azurlane"', 5)
-            cmd("proot-distro login ubuntu -- pkill -f 'python.*gui.py' 2>/dev/null || true", 5)
-            cmd("pkill -f start_ap.sh 2>/dev/null || true", 3)
-            info("已终止 AP 后端和碧蓝航线进程")
-            _bt_start[0] = time.time()
+def collect() -> dict:
+    """采集电池原始数据 + 当前前台应用"""
+    result = {}
+
+    # ── 电池（优先 sysfs 直接读文件，零开销；回退 dumpsys）──
+    for _p in ("battery", "bms", "fg"):
+        cap = _adb_medium(f"cat /sys/class/power_supply/{_p}/capacity 2>/dev/null", 2)
+        if cap and cap.strip().isdigit():
+            result["bt_raw"] = int(cap.strip())
+            tmp = _adb_medium(f"cat /sys/class/power_supply/{_p}/temp 2>/dev/null", 2)
+            if tmp and tmp.strip().isdigit():
+                result["btt_raw"] = int(tmp.strip())
+            break
     else:
-        if _bt_start[0] is not None:
-            info(f"电池温度恢复正常 {temp_str}，重置计时")
-        _bt_start[0] = None
-    return {"bt": level_match.group(1) + "%" if level_match else "?", "btt": temp_str}
+        # sysfs 不可用，回退 dumpsys battery
+        raw = _adb_medium("dumpsys battery 2>/dev/null", 8)
+        for line in raw.split("\n"):
+            line = line.strip()
+            if line.startswith("level:"):
+                result["bt_raw"] = int(line.split()[-1])
+            elif line.startswith("temperature:"):
+                result["btt_raw"] = int(line.split()[-1])
+
+    # ── 前台应用（单条命令走 medium 通道）──
+    fg_raw = _adb_medium("dumpsys window 2>/dev/null|grep mCurrentFocus|cut -d/ -f1|awk '{print $NF}'", 5)
+    pkg_name = fg_raw.split()[-1] if fg_raw else "?"
+    if pkg_name.startswith("Window{"):
+        pkg_name = pkg_name.split()[-1] if len(pkg_name.split()) > 1 else "?"
+    result["fg_pkg"] = pkg_name
+
+    return result

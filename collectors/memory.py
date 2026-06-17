@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""内存采集（从 /proc/meminfo 读取，本地失败回退 ADB）"""
-from .base import _try_local
+"""内存采集（原始 KB 值）"""
+from .base import _adb_mem
 
 
 def collect() -> dict:
-    """读取内存总量与可用量"""
-    _CMD = "cat /proc/meminfo|head -5"
-    mr = _try_local(_CMD, _CMD, 3)
+    """读取 /proc/meminfo 原始 KB 值（走独立 mem 通道）"""
+    mr = _adb_mem("cat /proc/meminfo|head -5", 3)
     mt = ma = 0
     for l in mr.split("\n"):
         if "MemTotal:" in l:
@@ -15,10 +14,8 @@ def collect() -> dict:
         if "MemAvailable:" in l:
             ma = int(l.split()[1])
     if mt == 0:
-        return {"mp": 0, "mt": "?", "mu": "?", "ma": "?"}
+        return {}
     return {
-        "mp": round((mt - ma) / mt * 100, 1),
-        "mt": f"{mt // 1024}MB",
-        "mu": f"{(mt - ma) // 1024}MB",
-        "ma": f"{ma // 1024}MB",
+        "mem_kb": mt,       # 总内存 KB
+        "mem_avail_kb": ma,  # 可用内存 KB
     }

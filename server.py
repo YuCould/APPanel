@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr//i,/env,pyth,,3,,
 # -*- coding: utf-8 -*-
 """
 APPanel 服务器模块
@@ -22,7 +22,17 @@ async def ws_handler(ws) -> None:
     WS_CLIENTS.add(ws)
     try:
         if CACHE:
-            await ws.send(json.dumps(CACHE))
+            from collectors.shared import _CPU_MAP
+            payload = dict(CACHE)
+            payload["_pkg_map"] = _CPU_MAP.get("packages", {})
+            payload["_hidden_procs"] = _CPU_MAP.get("hidden_procs", {})
+            try:
+                from collectors.adb_shell import get_channel_adb_pids, get_channel_local_pids
+                payload["_adb_pids"] = get_channel_adb_pids()
+                payload["_local_pids"] = get_channel_local_pids()
+            except Exception:
+                pass
+            await ws.send(json.dumps(payload))
         async for msg in ws:
             try:
                 data = json.loads(msg)

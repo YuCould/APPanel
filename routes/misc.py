@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bi,/env python3?
 # -*- coding: utf-8 -*-
 """杂项路由：首页、favicon、API 全量数据、重启"""
 import os, threading, time, sys
@@ -43,89 +43,34 @@ def register(app) -> None:
         threading.Thread(target=_do, daemon=False).start()
         return jsonify({"status": "restarting"})
 
-    @app.route("/api/screen", methods=["GET", "POST"])
-    def screen():
-        """熄屏挂机：优先 dex（SurfaceControl），回退 dream start"""
-        from collectors.base import _adb, _local
-        from collectors.shared import _sd, _data_lock
-        from collectors.ws import CACHE
-        if request.method == "POST":
-            action = request.get_json(force=True).get("action", "")
-            if action == "off":
-                _adb("svc power stayon true", 3)
-                av = _local("getprop ro.build.version.sdk 2>/dev/null", 2) or ""
-                sdk = int(av) if av.isdigit() else 0
-                r = ""
-                # 1) dex（SurfaceControl，不锁屏）
-                r = _adb("app_process -Djava.class.path=/data/local/tmp/escrcpy.dex /data/local/tmp com.apanel.ScreenEscrcpy 0", 10)
-                # 2) dream start（Android 8+）
-                if not r and sdk >= 26:
-                    r = _adb("cmd dream start", 3)
-                # 3) intent 启动 dream（Android 12 备选）
-                if not r and sdk >= 31:
-                    r = _adb("am start -a android.service.dreams.action.START_DREAM 2>/dev/null", 3)
-                # 4) KEYCODE_SLEEP（可能锁屏）
-                if not r:
-                    r = _adb("input keyevent 223", 3)
-                with _data_lock:
-                    _sd["screen_on"] = False
-                CACHE["screen_on"] = False
-                return jsonify({"status": "ok", "screen": "off"})
-            elif action == "on":
-                r = _adb("app_process -Djava.class.path=/data/local/tmp/escrcpy.dex /data/local/tmp com.apanel.ScreenEscrcpy 2", 10)
-                if not r:
-                    _adb("input keyevent 224", 3)
-                with _data_lock:
-                    _sd["screen_on"] = True
-                CACHE["screen_on"] = True
-                return jsonify({"status": "ok", "screen": "on"})
-            return jsonify({"status": "error", "message": "unknown action"}), 400
-        # GET
-        with _data_lock:
-            is_on = _sd.get("screen_on", True)
-        return jsonify({"status": "ok", "screen": "on" if is_on else "off"})
-
-    @app.route("/api/screen/view")
-    def screen_view():
-        """通过 atx-agent 截取屏幕（JPEG）"""
-        import subprocess
-        # atx-agent JPEG
-        try:
-            r = subprocess.run(["curl", "-s", "http://127.0.0.1:7912/screenshot"],
-                capture_output=True, timeout=8)
-            if r.returncode == 0 and len(r.stdout) > 1000:
-                from flask import Response
-                return Response(r.stdout, mimetype='image/jpeg')
-        except Exception:
-            pass
-        # 回退 screencap PNG
-        try:
-            r = subprocess.run(["adb", "-s", "127.0.0.1:5555", "exec-out", "screencap", "-p"],
-                capture_output=True, timeout=8)
-            if r.returncode == 0 and len(r.stdout) > 1000:
-                from flask import Response
-                return Response(r.stdout, mimetype='image/png')
-        except Exception:
-            pass
-        return "", 500
-
     @app.route("/api/kill", methods=["POST"])
     def api_kill():
-        """通过 ADB kill 进程（PID 或包名）"""
-        from collectors.base import _adb
+        """通过 ADB kill 进程（PID 或包名，走 action 通道不阻塞采集）"""
+        from collectors.base import _adb_action
         data = request.get_json(force=True)
         pid = data.get("pid", "")
         pkg = data.get("pkg", "")
         results = []
         if pkg:
-            r = _adb(f"am force-stop {pkg}", 5)
+            r = _adb_action(f"am force-stop {pkg}", 5)
             results.append(f"force-stop {pkg}: {'ok' if not r else r}")
         if pid and pid.isdigit():
-            r = _adb(f"kill {pid}", 5)
+            r = _adb_action(f"kill {pid}", 5)
             results.append(f"kill {pid}: {'ok' if not r else r}")
         if not results:
             return jsonify({"status": "error", "message": "no pid or pkg provided"}), 400
         return jsonify({"status": "ok", "results": results})
+
+    @app.route("/api/kill-ubuntu", methods=["POST"])
+    def api_kill_ubuntu():
+        """强制终止 proot-distro ubuntu 所有进程"""
+        import subprocess as _sp
+        try:
+            _sp.run("pkill -f 'proot-distro.*ubuntu' 2>/dev/null; pkill -f 'python.*gui.py' 2>/dev/null; pkill -f 'AzurPilot' 2>/dev/null",
+                    shell=True, timeout=5)
+            return jsonify({"status": "ok", "message": "已终止 proot-distro ubuntu 相关进程"})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
 
     @app.route("/api/version")
     def api_version():
@@ -170,46 +115,38 @@ def register(app) -> None:
 
     @app.route("/api/ports", methods=["GET", "POST"])
     def api_ports():
-        """读取/写入端口配置"""
+        """读取/写入端口配置（存入 settings.json）"""
         import json as _json
-        _port_path = os.path.join(_BASE, "port_config.json")
+        _settings_path = os.path.join(_BASE, "settings.json")
         if request.method == "POST":
             try:
-                data = request.get_json(force=True)
-                content = {"说明": "端口配置覆盖文件，留空或删掉此文件则使用 config.py 中的默认值"}
-                for k in ("flask_port", "ws_port", "ap_port", "adb_port"):
-                    v = data.get(k)
-                    content[k] = v if (v is not None and str(v).strip()) else None
-                with open(_port_path, "w", encoding="utf-8") as f:
-                    _json.dump(content, f, indent=2, ensure_ascii=False)
+                # 读取当前 settings.json
+                if os.path.exists(_settings_path):
+                    with open(_settings_path, encoding="utf-8") as f:
+                        cfg = _json.load(f)
+                else:
+                    cfg = {}
+                # 写入端口字段
+                for k in ("flask_port", "ws_port", "ap_port", "adb_port", "screen_port"):
+                    v = request.get_json(force=True).get(k)
+                    cfg[k] = v if (v is not None and str(v).strip()) else None
+                with open(_settings_path, "w", encoding="utf-8") as f:
+                    _json.dump(cfg, f, indent=2, ensure_ascii=False)
                 return jsonify({"status": "ok", "message": "端口配置已保存，重启 APPanel 后生效"})
             except Exception as e:
                 return jsonify({"status": "error", "message": str(e)}), 500
         # GET
+        _defaults = {"flask_port": 80, "ws_port": 5001, "ap_port": 22267, "adb_port": 5555, "screen_port": 20000}
+        _current = {}
         try:
-            with open(_port_path, encoding="utf-8") as f:
-                cfg = _json.load(f)
-            return jsonify({
-                "status": "ok",
-                "current": {
-                    "flask_port": cfg.get("flask_port"),
-                    "ws_port": cfg.get("ws_port"),
-                    "ap_port": cfg.get("ap_port"),
-                    "adb_port": cfg.get("adb_port"),
-                },
-                "defaults": {
-                    "flask_port": 80,
-                    "ws_port": 5001,
-                    "ap_port": 22267,
-                    "adb_port": 5555,
-                },
-            })
-        except Exception as e:
-            return jsonify({"status": "error", "message": str(e)}), 500
-
-    @app.route("/mpegts.js")
-    def mpegts_js():
-        return "", 204
+            if os.path.exists(_settings_path):
+                with open(_settings_path, encoding="utf-8") as f:
+                    cfg = _json.load(f)
+                for k in _defaults:
+                    _current[k] = cfg.get(k)
+        except Exception:
+            pass
+        return jsonify({"status": "ok", "current": _current, "defaults": _defaults})
 
     @app.route("/index.png")
     def index_png():
