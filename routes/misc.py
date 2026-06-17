@@ -1,4 +1,4 @@
-#!/usr/bi,/env python3?
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """杂项路由：首页、favicon、API 全量数据、重启"""
 import os, threading, time, sys

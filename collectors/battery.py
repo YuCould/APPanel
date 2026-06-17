@@ -1,4 +1,4 @@
-#!/usr/,,n/en, python3//,/.,,/.,.//.///
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """中速采集：电池 + 当前前台应用（medium 通道）"""
 from .base import _adb_medium

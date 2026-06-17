@@ -1,4 +1,4 @@
-#!/usr/bin/env,python3,,.,
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """路由包 — 注册所有 Flask 路由"""
 

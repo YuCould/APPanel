@@ -1,4 +1,4 @@
-#!/us,/,in,env ,ytho,3.,,,,...,,
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """设置 API：读取/保存 settings.json，自动生成 .bashrc"""
 import json, os

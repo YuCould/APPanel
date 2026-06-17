@@ -1,4 +1,4 @@
-#!/usr//i,/env,pyth,,3,,
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 APPanel 服务器模块

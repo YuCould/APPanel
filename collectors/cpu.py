@@ -1,4 +1,4 @@
-#!/us,/bin/e,v p?thon3,
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """CPU 型号识别 + 核心频率采集（原始数据）"""
 import re

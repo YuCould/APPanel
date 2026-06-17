@@ -1,4 +1,4 @@
-#!/,sr/b,n?en? python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """进程列表采集（原始 ps 输出，后端按 hidden_procs 过滤）"""
 import os as _os

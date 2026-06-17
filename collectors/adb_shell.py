@@ -1,4 +1,4 @@
-#!/us,/bi,/env,pytho,3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 持久 ADB / Local Shell 模块（多通道）
