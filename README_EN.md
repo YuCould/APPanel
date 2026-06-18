@@ -7,7 +7,7 @@
 - 🖥️ **Web Dashboard** — Flask + WebSocket real-time push, desktop/mobile responsive layout
 - 📊 **Multi-Dimension Monitoring** — CPU usage, memory, storage, network speed/total, battery level/temp, process list
 - 🔌 **ADB Wireless Debugging** — 8-channel persistent ADB shells, parallel collection without blocking
-- ⚡ **Overheat Protection** — Battery ≥50°C for 15 minutes auto-kills AP backend and Azur Lane
+- ⚡ **Overheat Protection** — Battery ≥50°C for 15 minutes auto-kills AP backend and Azur Lane (⚠️ untested)
 - 🔧 **Visual Settings** — Web-based editor for chip mapping, app name mapping, collection speed, hidden processes, autostart, ports
 - 🔄 **Manual Update** — Version check, manual `git pull` with auto-restart
 - 🛡️ **Autostart Daemon** — SSH/Dashboard/AP backend/Overheat kill/ADB port fix, toggle switches in settings
@@ -22,7 +22,7 @@
 - **Memory**: Used/total display with percentage bar
 - **Storage**: Used/total display, auto GB/MB units, project directory size
 - **Network**: Download/upload speed (1 decimal), Canvas 60fps Bezier chart (180 samples); IPv4 + IPv6 addresses, cumulative totals (default MB, auto-switch to GB above 1GB)
-- **Battery**: Percentage with animated transition, temperature warning (>40°C alert, ≥50°C for 15 min kills AP and Azur Lane)
+- **Battery**: Percentage with animated transition, temperature warning (>40°C alert, ≥50°C for 15 min kills AP and Azur Lane, ⚠️ untested)
 - **CPU Temp**: Thermal zone reading, >70°C shows solder risk warning
 - **Device Info**: Manufacturer + model (collected once)
 - **Android Version**: API level
@@ -32,7 +32,7 @@
 - Real-time process list, default sorted by CPU descending, max 100 processes
 - Sort by PID / CPU / Memory / App / Package name (ascending/descending)
 - **Click any row to copy package name** to clipboard
-- Auto-labeled: APPanel-main, APPanel-fast, APPanel-freq, APPanel-mem, APPanel-proc, APPanel-medium, APPanel-slow, APPanel-ap, APPanel-action, APPanel-adb, APPanel-ps, APPanel-AP-backend, etc.
+- Auto-labeled: APPanel-main, APPanel-fast, APPanel-freq, APPanel-mem, APPanel-proc, APPanel-medium, APPanel-slow, APPanel-ap, APPanel-action, APPanel-adb, APPanel-ps, APPanel-AP-backend, APPanel-channel-shell, etc.
 - Hidden process prefix filtering (e.g., android.), user-customizable
 
 ### Settings Editor
@@ -40,7 +40,7 @@
   - **Chips**: Processor codename → display name
   - **Packages**: Package name → app name
   - **Autostart**: Toggle switches, auto-writes to ~/.bashrc
-  - **Collection Speed**: Per-channel multiplier (0.25x~4x), live interval preview
+  - **Collection Speed**: Per-channel multiplier (0.25x~4x)
   - **Hidden Processes**: Filter by prefix
 - Inline editing, add/delete entries
 - **📱 Quick Add**: One-click add current foreground app to mapping
@@ -56,6 +56,7 @@
 - **WebSocket Diff Push**: Only send changed fields, full sync every 10 cycles for reliability
 - **Render Debounce**: 50ms debounce on WS messages
 - **Process Table HTML Cache**: Skip DOM rebuild when ps_raw unchanged
+- ~~**Live Collection Frequency Display**~~: Removed due to inaccurate calculation and performance overhead
 - **Click-to-edit title**
 - **Temperature hover warnings**: CPU >70°C / Battery >40°C
 - **Dark/Light theme toggle**, no refresh needed
@@ -91,6 +92,8 @@ Open `http://<phone-ip>:20080` in browser.
 
 ### Autostart
 
+<small>Root required, otherwise ADB re-pairing needed after reboot.</small>
+
 Settings → Autostart → toggle on → Save, auto-writes to `~/.bashrc`.
 
 ### AP Backend
@@ -107,7 +110,7 @@ Works with [AzurPilot](https://github.com/wess09/AzurPilot) deployed inside proo
 
 ### 8-Channel Persistent ADB Shells
 
-Each channel has an independent ADB shell process + threading.Lock:
+Each channel has an independent ADB shell + local bash --norc process + threading.Lock. The frontend labels ADB shells as `APPanel-channel-collect` and local bash as `APPanel-channel-shell`:
 
 | Channel | Collectors | Base Interval | Speed Multiplier |
 |---------|-----------|---------------|------------------|
@@ -150,9 +153,9 @@ All data collected via **8 persistent ADB/Local shells**:
 
 ### Performance
 
-- **CPU**: Fast collection ~20% single core, other channels <1%
-- **Memory**: Main process ~30MB + 8 ADB shells ~8MB total
-- **Network**: ~30KB/push per client (90% is ps_raw), diff push ~hundreds of bytes
+- **CPU**: Depends on processor performance; higher-end CPUs use less. Fast collection ~5%~20% single core, other channels <1%
+- **Memory**: Main process ~30MB + 8 ADB shells ~64MB (8MB ea.) + 8 local bash ~32MB (4MB ea.)
+- **Network**: ~30KB/push per client (85% is ps_raw), diff push ~hundreds of bytes
 
 ---
 
@@ -169,6 +172,7 @@ All data collected via **8 persistent ADB/Local shells**:
 | `collectors/base.py` | Collector utilities (channel wrappers, thread launcher) |
 | `collectors/runner.py` | Collector starter, channel assignment |
 | `collectors/broadcast.py` | Diff broadcast thread |
+| `collectors/hot_protect.py` | Overheat protection (≥50°C 15min auto-kill) |
 | `collectors/fast_bundle.py` | CPU + network + AP process |
 | `collectors/cpu.py` | CPU frequency + model |
 | `collectors/memory.py` | Memory |
@@ -192,7 +196,7 @@ Managed via Settings page. Structure:
 {
   "chips": { "kona": "Snapdragon 865" },
   "packages": { "com.tencent.mm": "WeChat" },
-  "autostart": { "sshd": true, "dashboard": true },
+  "autostart": { "sshd": true, "dashboard": true, "ap_backend": false, "hot_protect": true, "fix_adb_port": false },
   "collect_speeds": { "fast": 1.0, "medium": 1.0, "slow": 1.0 },
   "hidden_procs": { "android.": "" }
 }

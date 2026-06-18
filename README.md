@@ -1,4 +1,4 @@
-# APP,n,l — Android 设.,,监控仪表盘?,.
+# APPanel — Android 设备实时监控仪表盘
 
 [GitHub](https://github.com/YuCould/APPanel) | [English](README_EN.md) | 运行在 **Termux** 中，通过 **Web 页面**实时展示 Android 设备状态。集成了 ADB 无线调试、多通道持久 Shell、Diff 推送 WebSocket，无需 root 即可实现 CPU/内存/存储/网络/电池/进程等全方位监控。
  

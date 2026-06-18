@@ -1,4 +1,4 @@
-#!/usr/bin/env b?sh
+#!/usr/bin/env bash
 # ============================================
 # APPanel 自启动脚本
 # Termux 开机/手动执行: bash startup.sh
